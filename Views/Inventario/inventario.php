@@ -59,43 +59,47 @@
     </div>
   </div>
 
-  <div class="row mb-3">
-    <div class="col-md-12">
-      <div class="tile border-0 shadow-sm rounded-lg p-3">
-        <div class="tile-body">
-          <div class="row align-items-center">
-            
-            <div class="col-md-4">
-              <button class="btn btn-lg-capsule btn-pdf-report" type="button" onclick="generarReportePDF();">
-                <i class="fas fa-file-pdf mr-2"> </i> Reporte Inventario 
-              </button>
-            </div>
-
-            <div class="col-md-3">
-              <div class="custom-date-container">
-                <i class="fas fa-calendar-alt"></i>
-                <input type="text" id="txtFechaInicio" class="flatpickr-input" placeholder="Fecha Inicio">
-              </div>
-            </div>
-
-            <div class="col-md-3">
-              <div class="custom-date-container">
-                <i class="fas fa-calendar-check"></i>
-                <input type="text" id="txtFechaFin" class="flatpickr-input" placeholder="Fecha Fin">
-              </div>
-            </div>
-
-            <div class="col-md-2">
-              <button class="btn btn-lg-capsule btn-filter-custom" type="button" onclick="generarReporteMovimientos();">
-                <i class="fas fa-filter mr-2"></i> Filtrar
-              </button>
-            </div>
-
+ <div class="row mb-4">
+  <div class="col-md-12">
+    <div class="tile border-0 shadow-sm rounded-lg p-4"> <!-- Mantenemos tus bordes redondeados -->
+      <div class="tile-body">
+        <div class="row align-items-center">
+          
+          <!-- Reporte: Abajo le damos margen en móvil con mb-3 -->
+          <div class="col-12 col-md-4 mb-3 mb-md-0">
+            <button class="btn btn-lg-capsule btn-pdf-report w-100" type="button" onclick="generarReportePDF();">
+              <i class="fas fa-file-pdf mr-2"></i> Reporte Inventario 
+            </button>
           </div>
+
+          <!-- Fecha Inicio -->
+          <div class="col-12 col-sm-6 col-md-3 mb-3 mb-md-0">
+            <div class="custom-date-container shadow-sm">
+              <i class="fas fa-calendar-alt"></i>
+              <input type="text" id="txtFechaInicio" class="flatpickr-input" placeholder="Fecha Inicio">
+            </div>
+          </div>
+
+          <!-- Fecha Fin -->
+          <div class="col-12 col-sm-6 col-md-3 mb-3 mb-md-0">
+            <div class="custom-date-container shadow-sm">
+              <i class="fas fa-calendar-check"></i>
+              <input type="text" id="txtFechaFin" class="flatpickr-input" placeholder="Fecha Fin">
+            </div>
+          </div>
+
+          <!-- Filtrar -->
+          <div class="col-12 col-md-2 mt-2 mt-md-0">
+            <button class="btn btn-lg-capsule btn-filter-custom w-100" type="button" onclick="generarReporteMovimientos();">
+              <i class="fas fa-filter mr-2"></i> Filtrar
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
   </div>
+</div>
 
   <div class="row">
     <div class="col-md-12">

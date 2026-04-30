@@ -83,6 +83,59 @@
     pointer-events: none;
 }
 
+
+
+/** ORDEN ADMON **/
+/* Estilos Base para Desktop */
+.table-invoice { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+.table-invoice th { background: #f8f9fa; padding: 12px; border-bottom: 2px solid #dee2e6; }
+.table-invoice td { padding: 12px; border-bottom: 1px solid #eee; }
+
+.invoice-totals { width: 300px; margin-left: auto; margin-top: 20px; }
+.total-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f1f1; }
+.main-total { color: #c9a050; font-weight: bold; font-size: 1.2rem; border-bottom: none; }
+
+/* MEDIA QUERY PARA MÓVIL */
+@media (max-width: 767px) {
+    /* Ocultamos el encabezado de la tabla */
+    .table-invoice thead { display: none; }
+
+    .table-invoice, .table-invoice tbody, .table-invoice tr, .table-invoice td { 
+        display: block; 
+        width: 100%; 
+    }
+
+    .table-invoice tr {
+        margin-bottom: 15px;
+        border: 1px solid #e1e1e1;
+        padding: 10px;
+        background: #fff;
+    }
+
+    .table-invoice td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+        border-bottom: 1px solid #f9f9f9;
+    }
+
+    /* Insertamos el nombre de la columna usando el atributo data-label */
+    .table-invoice td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        width: 45%;
+        text-align: left;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .table-invoice td:last-child { border-bottom: none; }
+
+    /* Ajuste de totales en móvil */
+    .invoice-totals { width: 100%; margin-top: 10px; }
+}
+
 /**TABS**/
 
 #clienteTab .nav-link {

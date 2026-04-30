@@ -173,15 +173,9 @@ function uploadImage(array $data, string $name){
     if (empty($data['tmp_name'])) return false;
     
     $url_temp = $data['tmp_name'];
-    $extension = strtolower(pathinfo($data['name'], PATHINFO_EXTENSION));
-    $nombreFinal = $name . "." . $extension; // Ej: img_abc123.jpg
-    
-    // La ruta es la carpeta general de uploads
-    $destino = 'Assets/images/uploads/' . $nombreFinal;
-
-    // Subimos el archivo directamente a la carpeta uploads
+    $destino = 'Assets/images/uploads/' . $name;
     if (move_uploaded_file($url_temp, $destino)) {
-        return $nombreFinal;
+        return true; // Retornamos true si se movió con éxito
     }
     
     return false;

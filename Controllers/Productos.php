@@ -170,72 +170,51 @@ class Productos extends Controllers
     die();
 }
 
-    public function setImage()
-    {
-        if ($_POST) {
-            // 1. Verificación de datos básicos
-            if (empty($_POST['idproducto']) || empty($_FILES['foto'])) {
-                $arrResponse = ['status' => false, 'msg' => 'Datos incompletos o archivo no recibido.'];
-            } else {
-                $idProducto = intval($_POST['idproducto']);
-                $foto = $_FILES['foto'];
+  public function setImage()
+{
+    if ($_POST) {
+        if (empty($_POST['idproducto']) || empty($_FILES['foto'])) {
+            $arrResponse = ['status' => false, 'msg' => 'Datos incompletos.'];
+        } else {
+            $idProducto = intval($_POST['idproducto']);
+            $foto = $_FILES['foto'];
 
-                // 2. Validación detallada de errores de PHP (UPLOAD_ERR)
-                if ($foto['error'] !== UPLOAD_ERR_OK) {
-                    switch ($foto['error']) {
-                        case 1: // UPLOAD_ERR_INI_SIZE
-                            $msg = "La imagen excede el límite permitido por el servidor (php.ini).";
-                            break;
-                        case 2: // UPLOAD_ERR_FORM_SIZE
-                            $msg = "La imagen excede el límite permitido por el formulario HTML.";
-                            break;
-                        case 3:
-                            $msg = "La carga se interrumpió, intenta de nuevo.";
-                            break;
-                        case 4:
-                            $msg = "No se ha seleccionado ninguna imagen.";
-                            break;
-                        default:
-                            $msg = "Error desconocido en la carga del archivo (Código: " . $foto['error'] . ").";
-                            break;
-                    }
-                    $arrResponse = ['status' => false, 'msg' => $msg];
-                    echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
-                    die();
-                }
-
-                // 3. Generación de nombre único para evitar bloqueos en Windows
-                $extension = strtolower(pathinfo($foto['name'], PATHINFO_EXTENSION));
-                // Usamos uniqid() para garantizar que nunca se repita el nombre en milisegundos
-                $imgNombre = 'prod_' . $idProducto . '_' . uniqid() . '.' . $extension;
-
-                // 4. Intento de movimiento del archivo físico
-                // Nota: Recuerda que uploadImage debe usar rutas relativas en Helpers.php
-                $upload = uploadImage($foto, $imgNombre);
-
-                if ($upload) {
-                    // 5. Registro en la base de datos
-                    $request_image = $this->model->insertImage($idProducto, $imgNombre);
-
-                    if ($request_image > 0) {
-                        $arrResponse = [
-                            'status' => true,
-                            'imgname' => $imgNombre,
-                            'msg' => 'Imagen cargada correctamente.'
-                        ];
-                    } else {
-                        // Si falla la BD, eliminamos el archivo que acabamos de subir para no dejar basura
-                        deleteFile($imgNombre);
-                        $arrResponse = ['status' => false, 'msg' => 'Error al registrar la imagen en la base de datos.'];
-                    }
-                } else {
-                    $arrResponse = ['status' => false, 'msg' => 'Error al mover el archivo físico al servidor. Revisa permisos de carpeta.'];
-                }
+            if ($foto['error'] !== UPLOAD_ERR_OK) {
+                // ... (aquí va tu switch de errores actual)
+                $arrResponse = ['status' => false, 'msg' => 'Error en la carga.'];
+                echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+                die();
             }
-            echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+
+            // Generamos la extensión y el nombre completo UNA SOLA VEZ
+            $extension = strtolower(pathinfo($foto['name'], PATHINFO_EXTENSION));
+            $imgNombre = 'prod_' . $idProducto . '_' . bin2hex(random_bytes(5)) . '.' . $extension;
+
+            // Intentamos subir
+            $upload = uploadImage($foto, $imgNombre);
+
+            if ($upload) {
+                $request_image = $this->model->insertImage($idProducto, $imgNombre);
+
+                if ($request_image > 0) {
+                    $arrResponse = [
+                        'status' => true,
+                        'imgname' => $imgNombre,
+                        'msg' => 'Imagen cargada correctamente.'
+                    ];
+                } else {
+                    deleteFile($imgNombre);
+                    $arrResponse = ['status' => false, 'msg' => 'Error al registrar en BD.'];
+                }
+            } else {
+                $arrResponse = ['status' => false, 'msg' => 'Error al mover el archivo físico.'];
+            }
         }
-        die();
+        // Aquí se envía la respuesta que armamos arriba
+        echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
     }
+    die();
+}
 
     public function delFile()
     {

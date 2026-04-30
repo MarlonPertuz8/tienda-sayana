@@ -22,39 +22,39 @@ $id_encriptado = openssl_encrypt($producto['idproducto'], $metodo, $key);
 <div class="container bg0 p-t-100 p-b-80">
     <div class="row">
         <div class="col-md-6 col-lg-7 p-b-30">
-    <div class="p-l-25 p-r-30 p-lr-0-lg">
-        <div class="wrap-slick3 flex-sb flex-w">
-            
-            <?php if (!empty($imagenes) && count($imagenes) > 1): ?>
-                <div class="wrap-slick3-dots"></div>
-            <?php endif; ?>
+            <div class="p-l-25 p-r-30 p-lr-0-lg">
+                <div class="wrap-slick3 flex-sb flex-w">
 
-            <div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
+                    <?php if (!empty($imagenes) && count($imagenes) > 1): ?>
+                        <div class="wrap-slick3-dots"></div>
+                    <?php endif; ?>
 
-            <div class="slick3 dot-main">
-                <?php if (!empty($imagenes)) {
-                    foreach ($imagenes as $img) { ?>
-                        <div class="item-slick3" data-thumb="<?= $img['url_image']; ?>">
-                            <div class="wrap-pic-w pos-relative">
-                                <?= $etiquetaImagen; ?>
-                                <img src="<?= $img['url_image']; ?>" 
-                                     alt="<?= htmlspecialchars($producto['nombre']); ?>"
-                                     onerror="this.src='<?= media(); ?>/images/uploads/default.png';">
+                    <div class="wrap-slick3-arrows flex-sb-m flex-w"></div>
+
+                    <div class="slick3 dot-main">
+                        <?php if (!empty($imagenes)) {
+                            foreach ($imagenes as $img) { ?>
+                                <div class="item-slick3" data-thumb="<?= $img['url_image']; ?>">
+                                    <div class="wrap-pic-w pos-relative">
+                                        <?= $etiquetaImagen; ?>
+                                        <img src="<?= $img['url_image']; ?>"
+                                            alt="<?= htmlspecialchars($producto['nombre']); ?>"
+                                            onerror="this.src='<?= media(); ?>/images/uploads/default.png';">
+                                    </div>
+                                </div>
+                            <?php }
+                        } else { ?>
+                            <div class="item-slick3" data-thumb="<?= media(); ?>/images/uploads/product-default.jpg">
+                                <div class="wrap-pic-w pos-relative">
+                                    <?= $etiquetaImagen; ?>
+                                    <img src="<?= media(); ?>/images/uploads/product-default.jpg" alt="Sayana Joyas">
+                                </div>
                             </div>
-                        </div>
-                    <?php }
-                } else { ?>
-                    <div class="item-slick3" data-thumb="<?= media(); ?>/images/uploads/product-default.jpg">
-                        <div class="wrap-pic-w pos-relative">
-                            <?= $etiquetaImagen; ?>
-                            <img src="<?= media(); ?>/images/uploads/product-default.jpg" alt="Sayana Joyas">
-                        </div>
+                        <?php } ?>
                     </div>
-                <?php } ?>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
         <div class="col-md-6 col-lg-5 p-b-30">
             <div class="p-r-50 p-t-5 p-lr-0-lg">
@@ -69,10 +69,10 @@ $id_encriptado = openssl_encrypt($producto['idproducto'], $metodo, $key);
                         for ($i = 5; $i >= 1; $i--):
                             $claseEstrella = ($i <= $puntuacionActual) ? 'fa fa-star' : 'fa fa-star-o';
                         ?>
-                            <i class="item-star <?= $claseEstrella ?>" 
-                               data-value="<?= $i ?>" 
-                               style="color: #d4af37; font-size: 16px; cursor: pointer;" 
-                               onclick="fntCalificar(this)">
+                            <i class="item-star <?= $claseEstrella ?>"
+                                data-value="<?= $i ?>"
+                                style="color: #d4af37; font-size: 16px; cursor: pointer;"
+                                onclick="fntCalificar(this)">
                             </i>
                         <?php endfor; ?>
                     </div>
@@ -123,19 +123,29 @@ $id_encriptado = openssl_encrypt($producto['idproducto'], $metodo, $key);
 
                     <div class="flex-w flex-r-m p-b-10">
                         <div class="size-204 flex-w flex-m respon6-next">
+                            <!-- Selector de Cantidad -->
                             <div class="wrap-num-product flex-w m-r-20 m-tb-10" style="border-radius: 25px; overflow: hidden; border: 1px solid #e1e1e1;">
                                 <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m"><i class="fs-16 zmdi zmdi-minus"></i></div>
                                 <input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" value="1" id="cant-product">
                                 <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m"><i class="fs-16 zmdi zmdi-plus"></i></div>
                             </div>
 
+                            <!-- Botón 1: Agregar -->
                             <button onclick="fntAddCarrito('<?= $id_encriptado; ?>')" class="flex-c-m stext-101 cl0 size-101 p-lr-15 trans-04 sayana-btn-luxury m-b-10">
                                 Agregar al Carrito
                             </button>
 
-                            <button onclick="fntAddCarrito('<?= $id_encriptado; ?>', true)" class="flex-c-m stext-101 cl0 size-101 p-lr-15 trans-04 btn-buy-now">
+                            <!-- Botón 2: Comprar -->
+                            <button onclick="fntAddCarrito('<?= $id_encriptado; ?>', true)" class="flex-c-m stext-101 cl0 size-101 p-lr-15 trans-04 btn-buy-now m-b-10">
                                 ¡COMPRAR AHORA!
                             </button>
+
+                            <!-- ACCIÓN DE SEGUIR COMPRANDO (Estilo Limpio) -->
+                            <div class="w-full flex-c-m p-t-8">
+                                <a href="<?= base_url(); ?>/tienda" class="stext-101 cl8 hov-cl1 trans-04" style="font-size: 13px; letter-spacing: 1px; text-transform: uppercase;">
+                                    <i class="zmdi zmdi-arrow-left m-r-6"></i> Seguir comprando
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -143,11 +153,11 @@ $id_encriptado = openssl_encrypt($producto['idproducto'], $metodo, $key);
                 <div class="p-t-40">
                     <div class="sayana-social-row">
                         <div class="bor9-r">
-                            <button class="fs-20 cl3 hov-cl1 trans-04 lh-10 p-r-15" 
-                                    onclick="fntAddWishlist(<?= $producto['idproducto'] ?>, this)" 
-                                    title="Añadir a Deseos">
+                            <button class="fs-20 cl3 hov-cl1 trans-04 lh-10 p-r-15"
+                                onclick="fntAddWishlist(<?= $producto['idproducto'] ?>, this)"
+                                title="Añadir a Deseos">
                                 <i class="fa <?= (isset($producto['is_fav']) && $producto['is_fav'] > 0) ? 'fa-heart' : 'fa-heart-o' ?>"
-                                   style="<?= (isset($producto['is_fav']) && $producto['is_fav'] > 0) ? 'color: #f77870;' : '' ?>"></i>
+                                    style="<?= (isset($producto['is_fav']) && $producto['is_fav'] > 0) ? 'color: #f77870;' : '' ?>"></i>
                             </button>
                         </div>
                         <a href="https://wa.me/<?= WHATSAPP; ?>?text=Hola Sayana, consulto por: <?= urlencode($producto['nombre']); ?>" class="sayana-icon-btn" target="_blank"><i class="fa fa-brands fa fa-whatsapp"></i></a>

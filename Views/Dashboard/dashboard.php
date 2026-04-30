@@ -158,7 +158,7 @@
                           </button>
                         <?php endif; ?>
 
-                        <a href="<?= base_url(); ?>/pedidos/orden/<?= $pedido['idpedido']; ?>"
+                        <a href="<?= base_url(); ?>/pedidosA/orden/<?= $pedido['idpedido']; ?>"
                           class="btn btn-sm btn-dark" title="Ver Detalle">
                           <i class="fas fa-eye"></i>
                         </a>
