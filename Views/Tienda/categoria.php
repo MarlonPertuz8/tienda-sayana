@@ -38,37 +38,44 @@ $ruta_categoria = isset($data['ruta']) ? $data['ruta'] : (isset($categoria_info[
             <?php
             if (!empty($data['productos'])) {
                 foreach ($data['productos'] as $producto):
-                    // Evita el error de "Undefined array key ruta"
+                    // 1. Manejo de Rutas y Enlaces
                     $ruta_p = !empty($producto['ruta']) ? $producto['ruta'] : $producto['idproducto'];
                     $link_detalle = base_url() . '/tienda/producto/' . $ruta_p;
-                    $imagen_url = !empty($producto['portada']) ? $producto['portada'] : media() . '/images/uploads/default.png';
+                    
+                    // 2. CORRECCIÓN: Foto por defecto (Validación robusta)
+                    $img_producto = media() . '/images/uploads/default.png'; // Imagen base
+                    if (!empty($producto['portada'])) {
+                        $img_producto = $producto['portada'];
+                    }
 
+                    // 3. Lógica de Stock
                     $stockActual = isset($producto['stock']) ? (int)$producto['stock'] : 0;
                     $sinStock = ($stockActual <= 0);
                     $claseAgotado = $sinStock ? "sayana-card-exhausted" : "";
 
-                    // Lógica de Oferta (por si la tienes en esta vista)
-                    $precioOriginal = $producto['precio'];
-                    $precioOferta = isset($producto['precio_oferta']) ? $producto['precio_oferta'] : 0;
+                    // 4. Lógica de Precios y Ofertas
+                    $precioOriginal = !empty($producto['precio']) ? $producto['precio'] : 0;
+                    // Buscamos precio_oferta o precio_final según lo que envíe tu controlador
+                    $precioOferta = isset($producto['precio_oferta']) ? $producto['precio_oferta'] : (isset($producto['precio_final']) ? $producto['precio_final'] : 0);
                     $tieneOferta = ($precioOferta > 0 && $precioOferta < $precioOriginal);
+                    
+                    // 5. Validaciones de Seguridad (Evitan Warnings de PHP)
+                    $isFav = isset($producto['is_fav']) ? $producto['is_fav'] : 0;
+                    $puntuacionActual = !empty($producto['promedio']) ? round($producto['promedio']) : 0;
             ?>
                     <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item">
                         <div class="block2 <?= $claseAgotado ?>">
                             <div class="<?= $sinStock ? 'js-block-click' : '' ?>">
                                 <div class="block2-pic hov-img0 pos-relative">
                                     <a href="<?= $link_detalle; ?>">
-                                        <?php
-                                        // Validamos si existe el dato de la portada
-                                        $img_producto = !empty($producto['portada']) ? $producto['portada'] : media() . '/images/uploads/default.png';
-                                        ?>
                                         <img src="<?= $img_producto; ?>"
                                             alt="<?= strip_tags($producto['nombre']); ?>"
                                             onerror="this.src='<?= media(); ?>/images/uploads/default.png';">
                                     </a>
 
                                     <button class="btn-wishlist-sayana" onclick="fntAddWishlist(<?= $producto['idproducto'] ?>, this)">
-                                        <i class="fa <?= (isset($producto['is_fav']) && $producto['is_fav'] > 0) ? 'fa-heart' : 'fa-heart-o' ?>"
-                                            style="<?= (isset($producto['is_fav']) && $producto['is_fav'] > 0) ? 'color: #f77870;' : '' ?>"></i>
+                                        <i class="fa <?= ($isFav > 0) ? 'fa-heart' : 'fa-heart-o' ?>"
+                                           style="<?= ($isFav > 0) ? 'color: #f77870;' : '' ?>"></i>
                                     </button>
 
                                     <?php if ($sinStock): ?>
@@ -76,19 +83,13 @@ $ruta_categoria = isset($data['ruta']) ? $data['ruta'] : (isset($categoria_info[
                                     <?php elseif ($tieneOferta): ?>
                                         <div class="label-oferta">OFERTA</div>
                                     <?php endif; ?>
-
-                                    <button class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04 js-show-modal1"
-                                        onclick="<?= $sinStock ? '' : 'fntViewProducto(' . $producto['idproducto'] . ')' ?>"
-                                        <?= $sinStock ? 'disabled' : '' ?>>
-                                        Vista Rápida
-                                    </button>
                                 </div>
 
                                 <div class="block2-txt p-3 text-center">
+                                    <!-- Estrellas de Calificación -->
                                     <div class="block2-rating m-b-5" data-idproducto="<?= $producto['idproducto'] ?>">
                                         <div class="stars-content" style="cursor: pointer;">
                                             <?php
-                                            $puntuacionActual = !empty($producto['promedio']) ? round($producto['promedio']) : 0;
                                             for ($i = 5; $i >= 1; $i--):
                                                 $claseEstrella = ($i <= $puntuacionActual) ? 'fa fa-star' : 'fa fa-star-o';
                                             ?>
@@ -116,10 +117,27 @@ $ruta_categoria = isset($data['ruta']) ? $data['ruta'] : (isset($categoria_info[
 
                                     <div class="sayana-actions-wrapper">
                                         <a href="<?= $link_detalle; ?>" class="btn-ver-joya">Ver Mas</a>
-                                        <button class="btn-add-cart <?= $sinStock ? 'disabled-total' : '' ?>"
-                                            <?= $sinStock ? 'disabled' : '' ?>>
-                                            <i class="fa fa-shopping-cart"></i>
-                                        </button>
+
+                                        <?php
+                                        // Encriptación y lógica de colores
+                                        $id_encriptado = openssl_encrypt($producto['idproducto'], METHODENCRIPT, KEY);
+                                        // Verificamos si tiene colores (ajustado a tu formato de datos)
+                                        $tieneColores = (!empty($producto['colores']) && $producto['colores'] != "[]") ? true : (isset($producto['tiene_colores']) && $producto['tiene_colores'] ? true : false);
+                                        ?>
+
+                                        <?php if ($sinStock): ?>
+                                            <button class="btn-add-cart disabled-total" disabled>
+                                                <i class="fa fa-shopping-cart"></i>
+                                            </button>
+                                        <?php elseif ($tieneColores): ?>
+                                            <a href="<?= $link_detalle . '?v=1'; ?>" class="btn-add-cart">
+                                                <i class="fa fa-shopping-cart"></i>
+                                            </a>
+                                        <?php else: ?>
+                                            <button class="btn-add-cart" onclick="fntAddCarrito('<?= $id_encriptado; ?>')">
+                                                <i class="fa fa-shopping-cart"></i>
+                                            </button>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>

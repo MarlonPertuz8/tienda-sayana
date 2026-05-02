@@ -42,7 +42,7 @@ $key = defined('KEY') ? KEY : "sayana_key";
                             <li class="p-b-6"><a href="#" class="filter-link stext-106 trans-04" data-sort="price-high">Precio: Alto a Bajo</a></li>
                         </ul>
                     </div>
-                    
+
                     <div class="filter-col2 p-r-15 p-b-27">
                         <div class="mtext-102 cl2 p-b-15">Precio</div>
                         <ul>
@@ -80,14 +80,14 @@ $key = defined('KEY') ? KEY : "sayana_key";
                     // CORRECCIÓN: Asegurar que los IDs existan para las clases del filtro
                     $idCat = !empty($producto['idcategoria']) ? $producto['idcategoria'] : ($producto['categoriaid'] ?? '0');
                     $idMat = !empty($producto['idmaterial']) ? $producto['idmaterial'] : ($producto['materialid'] ?? '0');
-                    
+
                     $precioFinal = $producto['precio_final'];
                     $tieneOferta = $producto['on_sale'];
-                    
+
                     $stockActual = isset($producto['stock']) ? (int)$producto['stock'] : 0;
                     $sinStock = ($stockActual <= 0) ? true : false;
                     $claseAgotado = $sinStock ? "sayana-card-exhausted" : "";
-                    
+
                     // Asignación de rangos para Isotope
                     $claseRango = "range-3";
                     if ($precioFinal <= 100000) $claseRango = "range-1";
@@ -99,10 +99,10 @@ $key = defined('KEY') ? KEY : "sayana_key";
                     <div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item cat_<?= $idCat ?> mat_<?= $idMat ?> <?= $claseRango ?>"
                         data-price="<?= $precioFinal ?>"
                         data-name="<?= strtolower(strip_tags($producto['nombre'])) ?>">
-                        
+
                         <div class="block2 <?= $claseAgotado ?>">
                             <div class="<?= $sinStock ? 'js-block-click' : '' ?>">
-                                
+
                                 <div class="block2-pic hov-img0 pos-relative">
                                     <a href="<?= base_url() . '/tienda/producto/' . $producto['ruta']; ?>">
                                         <img src="<?= !empty($producto['portada']) ? $producto['portada'] : media() . '/images/uploads/default.png'; ?>" alt="<?= strip_tags($producto['nombre']); ?>">
@@ -110,7 +110,7 @@ $key = defined('KEY') ? KEY : "sayana_key";
 
                                     <button class="btn-wishlist-sayana" onclick="fntAddWishlist(<?= $producto['idproducto'] ?>, this)">
                                         <i class="fa <?= ($producto['is_fav'] > 0) ? 'fa-heart' : 'fa-heart-o' ?>"
-                                           style="<?= ($producto['is_fav'] > 0) ? 'color: #f77870;' : '' ?>"></i>
+                                            style="<?= ($producto['is_fav'] > 0) ? 'color: #f77870;' : '' ?>"></i>
                                     </button>
 
                                     <?php if ($sinStock): ?>
@@ -129,9 +129,9 @@ $key = defined('KEY') ? KEY : "sayana_key";
                                                 $claseEstrella = ($i <= $puntuacionActual) ? 'fa fa-star' : 'fa fa-star-o';
                                             ?>
                                                 <i class="item-star <?= $claseEstrella ?>"
-                                                   data-value="<?= $i ?>"
-                                                   style="color: #d4af37; font-size: 13px;"
-                                                   onclick="fntCalificar(this)">
+                                                    data-value="<?= $i ?>"
+                                                    style="color: #d4af37; font-size: 13px;"
+                                                    onclick="fntCalificar(this)">
                                                 </i>
                                             <?php endfor; ?>
                                         </div>
@@ -151,8 +151,8 @@ $key = defined('KEY') ? KEY : "sayana_key";
                                     </span>
 
                                     <div class="sayana-actions-wrapper">
-                                        <a href="<?= base_url() . '/tienda/producto/' . $producto['ruta']; ?>" 
-                                           class="btn-ver-joya <?= $sinStock ? 'disabled-total' : '' ?>">
+                                        <a href="<?= base_url() . '/tienda/producto/' . $producto['ruta']; ?>"
+                                            class="btn-ver-joya <?= $sinStock ? 'disabled-total' : '' ?>">
                                             Ver Más
                                         </a>
 
@@ -161,7 +161,8 @@ $key = defined('KEY') ? KEY : "sayana_key";
                                                 <i class="fa fa-shopping-cart"></i>
                                             </button>
                                         <?php elseif ($tieneColores): ?>
-                                            <a href="<?= base_url() . '/tienda/producto/' . $producto['ruta']; ?>" class="btn-add-cart">
+                                            <!-- Se añade ?v=1 para activar el Toast en la siguiente página -->
+                                            <a href="<?= base_url() . '/tienda/producto/' . $producto['ruta'] . '?v=1'; ?>" class="btn-add-cart">
                                                 <i class="fa fa-shopping-cart"></i>
                                             </a>
                                         <?php else: ?>
@@ -171,7 +172,7 @@ $key = defined('KEY') ? KEY : "sayana_key";
                                         <?php endif; ?>
                                     </div>
                                 </div>
-                            </div> 
+                            </div>
                         </div>
                     </div>
             <?php endforeach;
@@ -181,21 +182,21 @@ $key = defined('KEY') ? KEY : "sayana_key";
 </div>
 
 <div class="flex-c-m flex-w w-full p-t-45">
-    <?php if($data['total_paginas'] > 1): ?>
+    <?php if ($data['total_paginas'] > 1): ?>
         <div class="pagination-wrapper flex-w">
-            <?php if($data['pagina'] > 1): ?>
-                <a href="<?= base_url(); ?>/tienda/index/<?= $data['pagina']-1; ?>" class="flex-c-m how-pagination1 trans-04 m-all-7">
+            <?php if ($data['pagina'] > 1): ?>
+                <a href="<?= base_url(); ?>/tienda/index/<?= $data['pagina'] - 1; ?>" class="flex-c-m how-pagination1 trans-04 m-all-7">
                     <i class="zmdi zmdi-chevron-left"></i>
                 </a>
             <?php endif; ?>
-            <?php for ($i=1; $i <= $data['total_paginas']; $i++): ?>
+            <?php for ($i = 1; $i <= $data['total_paginas']; $i++): ?>
                 <a href="<?= base_url(); ?>/tienda/index/<?= $i; ?>"
-                   class="flex-c-m how-pagination1 trans-04 m-all-7 <?= ($i == $data['pagina']) ? 'active-pagination1' : ''; ?>">
+                    class="flex-c-m how-pagination1 trans-04 m-all-7 <?= ($i == $data['pagina']) ? 'active-pagination1' : ''; ?>">
                     <?= $i; ?>
                 </a>
             <?php endfor; ?>
-            <?php if($data['pagina'] < $data['total_paginas']): ?>
-                <a href="<?= base_url(); ?>/tienda/index/<?= $data['pagina']+1; ?>" class="flex-c-m how-pagination1 trans-04 m-all-7">
+            <?php if ($data['pagina'] < $data['total_paginas']): ?>
+                <a href="<?= base_url(); ?>/tienda/index/<?= $data['pagina'] + 1; ?>" class="flex-c-m how-pagination1 trans-04 m-all-7">
                     <i class="zmdi zmdi-chevron-right"></i>
                 </a>
             <?php endif; ?>

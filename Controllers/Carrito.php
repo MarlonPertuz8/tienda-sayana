@@ -80,80 +80,88 @@ class Carrito extends Controllers
         }
     }
 
-    public function delCarrito()
-    {
-        if ($_POST) {
-            if (ob_get_length()) ob_clean();
-            $idProducto = strClean($_POST['id']); // Usamos strClean porque el ID puede ser string por el color
+   public function delCarrito()
+{
+    if ($_POST) {
+        if (ob_get_length()) ob_clean();
+        // Recibimos la llave única (ej: "14Plata")
+        $idProducto = strClean($_POST['id']); 
 
-            if (isset($_SESSION['arrCarrito'][$idProducto])) {
-                unset($_SESSION['arrCarrito'][$idProducto]);
+        if (isset($_SESSION['arrCarrito'][$idProducto])) {
+            unset($_SESSION['arrCarrito'][$idProducto]);
+        }
+
+        // Calculamos la nueva cantidad total
+        $cantCarrito = 0;
+        if (!empty($_SESSION['arrCarrito'])) {
+            foreach ($_SESSION['arrCarrito'] as $pro) {
+                $cantCarrito += $pro['cantidad'];
             }
+        }
 
-            $cantCarrito = 0;
-            if (!empty($_SESSION['arrCarrito'])) {
-                foreach ($_SESSION['arrCarrito'] as $pro) {
-                    $cantCarrito += $pro['cantidad'];
-                }
-            }
+        // Generamos el nuevo HTML del modal
+        ob_start();
+        $data = $_SESSION['arrCarrito'] ?? [];
+        getModal('modalCarrito', $data);
+        $htmlCarrito = ob_get_clean();
 
-            ob_start();
-            $data = $_SESSION['arrCarrito'] ?? [];
-            getModal('modalCarrito', $data);
-            $htmlCarrito = ob_get_clean();
+        echo json_encode([
+            "status" => true,
+            "cantCarrito" => $cantCarrito,
+            "htmlCarrito" => $htmlCarrito
+        ], JSON_UNESCAPED_UNICODE);
+        die();
+    }
+}
 
-            echo json_encode([
-                "status" => true,
-                "cantCarrito" => $cantCarrito,
-                "htmlCarrito" => $htmlCarrito
-            ], JSON_UNESCAPED_UNICODE);
+public function updateCarrito()
+{
+    if ($_POST) {
+        if (ob_get_length()) ob_clean();
+        // Recibimos la llave única directamente desde la vista
+        $idKey = strClean($_POST['id']); 
+        $action = strClean($_POST['action']);
+
+        // Verificamos si la llave existe en el carrito de la sesión
+        if (!isset($_SESSION['arrCarrito'][$idKey])) {
+            echo json_encode(["status" => false, "msg" => "No se encontró el producto en el joyero."]);
             die();
         }
-    }
 
-    public function updateCarrito()
-    {
-        if ($_POST) {
-            if (ob_get_length()) ob_clean();
-            $idPost = $_POST['id'];
-            $action = strClean($_POST['action']);
-
-            $idProducto = !is_numeric($idPost) ? openssl_decrypt($idPost, METHODENCRIPT, KEY) : $idPost;
-
-            if (!isset($_SESSION['arrCarrito'][$idProducto])) {
-                echo json_encode(["status" => false, "msg" => "No se encontró el producto."]);
-                die();
+        // Actualizamos la cantidad según la acción
+        if ($action == "add") {
+            $_SESSION['arrCarrito'][$idKey]['cantidad']++;
+        } else if ($action == "sub") {
+            if ($_SESSION['arrCarrito'][$idKey]['cantidad'] > 1) {
+                $_SESSION['arrCarrito'][$idKey]['cantidad']--;
+            } else {
+                // Si la cantidad llega a 0, lo eliminamos
+                unset($_SESSION['arrCarrito'][$idKey]);
             }
-
-            if ($action == "add") $_SESSION['arrCarrito'][$idProducto]['cantidad']++;
-            if ($action == "sub") {
-                if ($_SESSION['arrCarrito'][$idProducto]['cantidad'] > 1) {
-                    $_SESSION['arrCarrito'][$idProducto]['cantidad']--;
-                } else {
-                    unset($_SESSION['arrCarrito'][$idProducto]);
-                }
-            }
-
-            $cantCarrito = 0;
-            if (!empty($_SESSION['arrCarrito'])) {
-                foreach ($_SESSION['arrCarrito'] as $pro) {
-                    $cantCarrito += $pro['cantidad'];
-                }
-            }
-
-            ob_start();
-            $data = $_SESSION['arrCarrito'] ?? [];
-            getModal('modalCarrito', $data);
-            $htmlCarrito = ob_get_clean();
-
-            echo json_encode([
-                "status" => true,
-                "cantCarrito" => $cantCarrito,
-                "htmlCarrito" => $htmlCarrito
-            ], JSON_UNESCAPED_UNICODE);
-            die();
         }
+
+        // Recalculamos el contador total de la burbuja
+        $cantCarrito = 0;
+        if (!empty($_SESSION['arrCarrito'])) {
+            foreach ($_SESSION['arrCarrito'] as $pro) {
+                $cantCarrito += $pro['cantidad'];
+            }
+        }
+
+        // Refrescamos el HTML del carrito lateral
+        ob_start();
+        $data = $_SESSION['arrCarrito'] ?? [];
+        getModal('modalCarrito', $data);
+        $htmlCarrito = ob_get_clean();
+
+        echo json_encode([
+            "status" => true,
+            "cantCarrito" => $cantCarrito,
+            "htmlCarrito" => $htmlCarrito
+        ], JSON_UNESCAPED_UNICODE);
+        die();
     }
+}
 
     public function clearCarrito()
     {

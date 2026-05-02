@@ -83,31 +83,48 @@ function fntAddCarrito(id, checkout = false) {
 }
 
 function fntUpdateQty(idp, action) {
+    console.log("ID:", idp, "ACTION:", action);
+    const base_url = document.body.getAttribute('data-baseurl'); 
+    
     let request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
     let ajaxUrl = base_url + '/Carrito/updateCarrito';
     let formData = new FormData();
     formData.append('id', idp);
     formData.append('action', action);
+    
     request.open("POST", ajaxUrl, true);
     request.send(formData);
 
     request.onreadystatechange = function() {
         if (request.readyState == 4 && request.status == 200) {
-            let objData = JSON.parse(request.responseText);
-            if (objData.status) {
-                $('.js-show-cart').attr('data-notify', objData.cantCarrito);
-                $('#modalCarrito').html(objData.htmlCarrito);
-                if(typeof fntInitCanvasScroll === 'function') fntInitCanvasScroll();
-                
-                if (document.querySelector("#btnFinalizarPedido")) {
-                    location.reload();
+            try {
+                let objData = JSON.parse(request.responseText);
+                if (objData.status) {
+                    // 1. Actualiza la burbuja roja
+                    $('.js-show-cart').attr('data-notify', objData.cantCarrito);
+                    
+                    // 2. Actualiza SOLO el contenido interno del modal
+                    $('#modalCarrito').html(objData.htmlCarrito);
+                    
+                    // 3. Reinicia el scroll si es necesario
+                    if(typeof fntInitCanvasScroll === 'function') fntInitCanvasScroll();
+                    
+                    /* 
+                       ELIMINAMOS EL RELOAD: 
+                       Si el usuario está en la página de "procesar pedido", 
+                       puedes actualizar los totales de esa página mediante JS 
+                       en lugar de recargar todo.
+                    */
                 }
+            } catch (e) {
+                console.error("Error en updateCarrito:", e);
             }
         }
     }
 }
 
 function fntDelItem(idProducto) {
+    const base_url = document.body.getAttribute('data-baseurl'); // Asegúrate de tener base_url
     let ajaxUrl = base_url + '/Carrito/delCarrito';
     let formData = new FormData();
     formData.append('id', idProducto);
@@ -121,11 +138,14 @@ function fntDelItem(idProducto) {
         success: function(response) {
             let objData = JSON.parse(response);
             if (objData.status) {
+                // Actualiza burbuja y contenido
                 $('.js-show-cart').attr('data-notify', objData.cantCarrito);
                 $('#modalCarrito').html(objData.htmlCarrito);
+                
                 if(typeof fntInitCanvasScroll === 'function') fntInitCanvasScroll();
+                
+                // Mensaje elegante sin recargar
                 swal("Joyero", "Producto eliminado", "success");
-                if (document.querySelector("#btnFinalizarPedido")) location.reload();
             }
         }
     });

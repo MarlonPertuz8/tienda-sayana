@@ -153,38 +153,49 @@ class Tienda extends Controllers
         die();
     }
 
-    public function producto($params)
-    {
-        if (empty($params)) {
-            header("Location:" . base_url() . '/tienda');
-            die();
-        }
-
-        $strRuta = strClean($params);
-        $data['producto'] = $this->getProductoT($strRuta);
-
-        if (empty($data['producto'])) {
-            header("Location:" . base_url() . '/tienda');
-            die();
-        }
-
-        // PROCESAR PRECIO DEL PRODUCTO DETALLE
-        $this->formatPrecios($data['producto']);
-
-        $idProducto = $data['producto']['idproducto'];
-        $idCategoria = $data['producto']['categoriaid'];
-
-        $data['productos_relacionados'] = $this->getProductosRelacionadosT($idCategoria, $idProducto);
-
-        // PROCESAR PRECIOS RELACIONADOS
-        $this->formatPrecios($data['productos_relacionados']);
-
-        $data['tag_page'] = NOMBRE_EMPRESA . " - " . $data['producto']['nombre'];
-        $data['page_title'] = $data['producto']['nombre'];
-        $data['page_name'] = "producto";
-
-        $this->views->getView($this, "producto", $data);
+public function producto($params)
+{
+    // 1. Verificación inicial de parámetros
+    if (empty($params)) {
+        header("Location:" . base_url() . '/tienda');
+        die();
     }
+
+    $strRuta = strClean($params);
+
+    // 2. Intento de búsqueda: Primero por RUTA (URL amigable)
+    $data['producto'] = $this->getProductoT($strRuta);
+
+    // 3. Fallback: Si no lo encuentra por ruta, intentamos por ID numérico
+    if (empty($data['producto']) && is_numeric($strRuta)) {
+        $data['producto'] = $this->getProductoIDT(intval($strRuta));
+    }
+
+    // 4. Redirección final si el producto definitivamente no existe
+    if (empty($data['producto'])) {
+        header("Location:" . base_url() . '/tienda');
+        die();
+    }
+
+    // 5. Procesar precios y lógica de visualización
+    // Usamos el método formatPrecios que ya definiste en tu controlador
+    $this->formatPrecios($data['producto']);
+
+    $idProducto = $data['producto']['idproducto'];
+    $idCategoria = $data['producto']['categoriaid'];
+
+    // 6. Obtener y formatear productos relacionados
+    $data['productos_relacionados'] = $this->getProductosRelacionadosT($idCategoria, $idProducto);
+    $this->formatPrecios($data['productos_relacionados']);
+
+    // 7. Configuración de meta-datos de la página
+    $data['tag_page'] = NOMBRE_EMPRESA . " - " . $data['producto']['nombre'];
+    $data['page_title'] = $data['producto']['nombre'];
+    $data['page_name'] = "producto";
+
+    // 8. Carga de la vista
+    $this->views->getView($this, "producto", $data);
+}
 
 
     // 1. ELIMINAR UN PRODUCTO DEL JOYERO

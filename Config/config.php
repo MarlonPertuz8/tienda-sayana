@@ -9,7 +9,7 @@ date_default_timezone_set("America/Bogota");
 // Database configuration
 const DB_HOST = "mysql5048.site4now.net";
 const DB_NAME = "db_a86d42_sayana";
-const DB_USER = "sayana ";
+const DB_USER = "a86d42_sayana";
 const DB_PASSWORD = "18540915Bibi";
 const DB_CHARSET = "utf8";
 

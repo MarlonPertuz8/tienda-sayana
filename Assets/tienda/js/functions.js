@@ -118,37 +118,10 @@ window.fntInitCanvasScroll = function() {
     });
 };
 
-/* GESTIÓN DEL JOYERO */
-window.fntDelItem = function(idProducto) {
-    let ajaxUrl = base_url + '/Carrito/delCarrito';
-    let formData = new FormData();
-    formData.append('id', idProducto);
-
-    $.ajax({
-        type: "POST",
-        url: ajaxUrl,
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function(response) {
-            let objData = JSON.parse(response);
-            if (objData.status) {
-                $('.js-show-cart').attr('data-notify', objData.cantCarrito);
-                $('#modalCarrito').empty().html(objData.htmlCarrito);
-                fntInitCanvasScroll();
-                swal("Joyero", "Producto eliminado correctamente", "success");
-            } else {
-                swal("Error", objData.msg, "error");
-            }
-        }
-    });
-};
-
 window.fntClearCart = function() {
-    // Esta NO se cierra sola porque tiene la propiedad "buttons" definida
     swal({
-        title: "¿Vaciar Joyero?",
-        text: "¿Estás seguro de que quieres retirar todas tus joyas del carrito?",
+        title: "¿Vaciar Carrito?",
+        text: "¿Estás seguro de que quieres retirar todas tus accesorios del carrito?",
         icon: "warning",
         buttons: ["Cancelar", "Sí, vaciar"],
         dangerMode: true,
@@ -159,10 +132,30 @@ window.fntClearCart = function() {
                 let objData = JSON.parse(response);
                 if (objData.status) {
                     $('.js-show-cart').attr('data-notify', '0');
-                    $('#modalCarrito').html(objData.htmlCarrito);
-                    swal("Joyero", "Tu joyero está ahora vacío.", "success");
+                    // Esta es la línea que "limpia" el dibujo en pantalla
+                    $('#modalcarrito').html(objData.htmlCarrito); 
+                     swal("Carrito", "Tu carrito está ahora vacío.", "success");
                 }
             });
         }
     });
 };
+
+$(document).ready(function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.has('v')) {
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 6000,
+            icon: 'warning',
+            title: '¡POR FAVOR SELECCIONA UN COLOR!',
+            // Esto asegura que se vea por encima del header
+            didOpen: (toast) => {
+                toast.style.zIndex = '999999';
+            }
+        });
+    }
+});

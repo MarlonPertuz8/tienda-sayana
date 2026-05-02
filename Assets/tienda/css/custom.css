@@ -1952,7 +1952,7 @@ testimonio-card {
 
 .btn-add-cart:hover {
     background: #C9A646;
-    color: #fff;
+    color: #fff!important;
     transform: scale(1.1);
 }
 
@@ -2105,6 +2105,9 @@ testimonio-card {
     background-color: #fff !important;
 }
 
+.swal2-container {
+    z-index: 999999 !important;
+}
 /* ==========================================================
    BOTÓN VOLVER A LA TIENDA - REINVENTADO (SAYANA LUXURY)
    ========================================================== */

@@ -142,7 +142,7 @@ $id_encriptado = openssl_encrypt($producto['idproducto'], $metodo, $key);
 
                             <!-- ACCIÓN DE SEGUIR COMPRANDO (Estilo Limpio) -->
                             <div class="w-full flex-c-m p-t-8">
-                                <a href="<?= base_url(); ?>/tienda" class="stext-101 cl8 hov-cl1 trans-04" style="font-size: 13px; letter-spacing: 1px; text-transform: uppercase;">
+                                <a href="<?= base_url(); ?>/tienda" class="stext-101 cl2 hov-cl1 trans-04 font-weight-bold" style="font-size: 14px; letter-spacing: 1px; text-transform: uppercase;">
                                     <i class="zmdi zmdi-arrow-left m-r-6"></i> Seguir comprando
                                 </a>
                             </div>
@@ -172,5 +172,6 @@ $id_encriptado = openssl_encrypt($producto['idproducto'], $metodo, $key);
 
 <section class="sec-relate-product bg0 p-t-45 p-b-105">
 </section>
+
 
 <?php footerTienda($data); ?>

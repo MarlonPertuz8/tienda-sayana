@@ -10,19 +10,24 @@ trait TProducto
     public function getProductosT()
     {
         $this->con = new Mysql();
-        $idUser = isset($_SESSION['idUser']) ? $_SESSION['idUser'] : 0; // Capturamos el usuario actual
+        $idUser = isset($_SESSION['idUser']) ? $_SESSION['idUser'] : 0;
 
         $sql = "SELECT p.idproducto, p.nombre, p.precio, p.precio_oferta, p.stock, p.ruta,
-               p.categoriaid AS idcategoria, p.materialid, -- Usamos AS para estandarizar
-               (SELECT i.img FROM imagen i WHERE i.productoid = p.idproducto LIMIT 1) as imagen,
-               (SELECT COUNT(*) FROM wishlist WHERE productoid = p.idproducto AND personaid = $idUser) as is_fav
-        FROM producto p 
-        WHERE p.status != 0 
-        ORDER BY p.idproducto DESC LIMIT 8";
+                   p.colores,
+                   p.categoriaid AS idcategoria, p.materialid,
+                   (SELECT i.img FROM imagen i WHERE i.productoid = p.idproducto LIMIT 1) as imagen,
+                   (SELECT COUNT(*) FROM wishlist WHERE productoid = p.idproducto AND personaid = $idUser) as is_fav
+    FROM producto p 
+    WHERE p.status != 0 
+    ORDER BY p.idproducto DESC LIMIT 8";
+
         $request = $this->con->select_all($sql);
+
         if (count($request) > 0) {
             for ($c = 0; $c < count($request); $c++) {
-                $request[$c]['portada'] = !empty($request[$c]['imagen']) ? media() . '/images/uploads/' . $request[$c]['imagen'] : media() . '/images/uploads/default.png';
+                $request[$c]['portada'] = !empty($request[$c]['imagen'])
+                    ? media() . '/images/uploads/' . $request[$c]['imagen']
+                    : media() . '/images/uploads/default.png';
             }
         }
         return $request;
@@ -184,20 +189,21 @@ trait TProducto
     public function getBusquedaT(string $busqueda)
     {
         $this->con = new Mysql();
-        // AGREGADO: p.stock
         $sql = "SELECT p.idproducto,
-                       p.codigo,
-                       p.nombre,
-                       p.descripcion,
-                       p.categoriaid,
-                       p.precio,
-                       p.precio_oferta,
-                       p.stock,
-                       p.ruta,
-                       c.nombre as categoria
-                FROM producto p 
-                INNER JOIN categoria c ON p.categoriaid = c.idcategoria
-                WHERE p.status != 0 AND (p.nombre LIKE '%$busqueda%' OR p.descripcion LIKE '%$busqueda%')";
+                   p.codigo,
+                   p.nombre,
+                   p.descripcion,
+                   p.categoriaid,
+                   p.precio,
+                   p.precio_oferta,
+                   p.stock,
+                   p.ruta,
+                   p.colores,
+                   c.nombre as categoria
+            FROM producto p 
+            INNER JOIN categoria c ON p.categoriaid = c.idcategoria
+            WHERE p.status != 0 AND (p.nombre LIKE '%$busqueda%' OR p.descripcion LIKE '%$busqueda%')";
+
         $request = $this->con->select_all($sql);
 
         if (count($request) > 0) {
@@ -286,38 +292,36 @@ trait TProducto
     }
 
     public function cantProductosT()
-{
-    $this->con = new Mysql();
-    $sql = "SELECT COUNT(*) as total FROM producto WHERE status != 0";
-    $request = $this->con->select($sql);
-    return $request['total'];
-}
+    {
+        $this->con = new Mysql();
+        $sql = "SELECT COUNT(*) as total FROM producto WHERE status != 0";
+        $request = $this->con->select($sql);
+        return $request['total'];
+    }
 
-public function getProductosPageT(int $desde, int $porPagina)
-{
-    $this->con = new Mysql();
-    $idUser = isset($_SESSION['idUser']) ? $_SESSION['idUser'] : 0;
+    public function getProductosPageT(int $desde, int $porPagina)
+    {
+        $this->con = new Mysql();
+        $idUser = isset($_SESSION['idUser']) ? $_SESSION['idUser'] : 0;
 
-    // Usamos EXACTAMENTE tu misma consulta de getProductosT pero con LIMIT
-    $sql = "SELECT p.idproducto, p.nombre, p.precio, p.precio_oferta, p.stock, p.ruta,
+        $sql = "SELECT p.idproducto, p.nombre, p.precio, p.precio_oferta, p.stock, p.ruta,
+                   p.colores,
                    p.categoriaid AS idcategoria, p.materialid,
                    (SELECT i.img FROM imagen i WHERE i.productoid = p.idproducto LIMIT 1) as imagen,
                    (SELECT COUNT(*) FROM wishlist WHERE productoid = p.idproducto AND personaid = $idUser) as is_fav
             FROM producto p 
             WHERE p.status != 0 
             ORDER BY p.idproducto DESC LIMIT $desde, $porPagina";
-            
-    $request = $this->con->select_all($sql);
 
-    // Esta es la parte que faltaba para que se vean las imágenes:
-    if (count($request) > 0) {
-        for ($c = 0; $c < count($request); $c++) {
-            $request[$c]['portada'] = !empty($request[$c]['imagen']) 
-                ? media() . '/images/uploads/' . $request[$c]['imagen'] 
-                : media() . '/images/uploads/default.png';
+        $request = $this->con->select_all($sql);
+
+        if (count($request) > 0) {
+            for ($c = 0; $c < count($request); $c++) {
+                $request[$c]['portada'] = !empty($request[$c]['imagen'])
+                    ? media() . '/images/uploads/' . $request[$c]['imagen']
+                    : media() . '/images/uploads/default.png';
+            }
         }
+        return $request;
     }
-    return $request;
-}
-    
 }
