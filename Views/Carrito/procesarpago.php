@@ -143,7 +143,7 @@
                         <?php
                         if (isset($_SESSION['arrCarrito']) && count($_SESSION['arrCarrito']) > 0) {
                             foreach ($_SESSION['arrCarrito'] as $producto) {
-                                $idProducto = openssl_encrypt($producto['idproducto'], METHODENCRIPT, KEY);
+                                $idProducto = $producto['idproducto'].$producto['color'];
                         ?>
                                 <div class="flex-w flex-t bor12 p-b-15 p-t-15">
                                     <div class="size-208 w-full-ssm" style="width: 70px;">
@@ -177,7 +177,7 @@
                                                 </div>
                                             </div>
 
-                                            <span class="stext-110 cl2" style="color: #666;">
+                                            <span class="stext-110 cl2 subtotal-<?= $idProducto; ?>" style="color: #666;">
                                                 <?php
                                                 // Si el precio original existe y es mayor al precio actual, hay oferta
                                                 if (isset($producto['precio_original']) && $producto['precio_original'] > $producto['precio']) { ?>
@@ -217,7 +217,8 @@
                             <span class="stext-110 cl2">Subtotal:</span>
                         </div>
                         <div class="size-209">
-                            <span id="subtotalCarrito" data-value="<?= $data['total']; ?>" class="mtext-110 cl2">
+                            <!-- El ID subtotalCarrito es la clave aquí -->
+                            <span id="subtotalCarrito" class="mtext-110 cl2">
                                 $<?= formatMoneda($data['total']); ?>
                             </span>
                         </div>
@@ -237,7 +238,8 @@
                             <span class="mtext-101 cl2">Total:</span>
                         </div>
                         <div class="size-209 p-t-1">
-                            <span id="totalCarrito" class="mtext-110 cl2" style="color: #f3635a; font-weight: bold; font-size: 22px;">
+                            <!-- Cambié el ID a totalFinalCompra para diferenciarlo de subtotales -->
+                            <span id="totalFinalCompra" class="mtext-110 cl2" style="color: #f3635a; font-weight: bold; font-size: 22px;">
                                 $<?= formatMoneda($data['total']); ?>
                             </span>
                         </div>

@@ -119,22 +119,46 @@ window.fntInitCanvasScroll = function() {
 };
 
 window.fntClearCart = function() {
+    // Definimos base_url aquí por si no es global
+    const base_url = document.body.getAttribute('data-baseurl');
+
     swal({
         title: "¿Vaciar Carrito?",
-        text: "¿Estás seguro de que quieres retirar todas tus accesorios del carrito?",
+        text: "¿Estás seguro de que quieres retirar todos tus accesorios del carrito?",
         icon: "warning",
         buttons: ["Cancelar", "Sí, vaciar"],
         dangerMode: true,
     }).then((willDelete) => {
         if (willDelete) {
             let ajaxUrl = base_url + '/Carrito/clearCarrito';
+            
             $.post(ajaxUrl, function(response) {
-                let objData = JSON.parse(response);
-                if (objData.status) {
-                    $('.js-show-cart').attr('data-notify', '0');
-                    // Esta es la línea que "limpia" el dibujo en pantalla
-                    $('#modalcarrito').html(objData.htmlCarrito); 
-                     swal("Carrito", "Tu carrito está ahora vacío.", "success");
+                try {
+                    let objData = JSON.parse(response);
+                    if (objData.status) {
+                        // 1. Actualiza la burbuja del icono
+                        $('.js-show-cart').attr('data-notify', '0');
+                        
+                        // 2. CORRECCIÓN: ID con C mayúscula para que coincida con tu modal
+                        if($('#modalCarrito').length > 0) {
+                            $('#modalCarrito').html(objData.htmlCarrito);
+                        } else if($('.header-cart-content').length > 0) {
+                            // Plan B: si no encuentra el ID, usa la clase del contenedor
+                            $('.header-cart-content').html(objData.htmlCarrito);
+                        }
+
+                        // 3. Reiniciar scroll si es necesario
+                        if(typeof fntInitCanvasScroll === 'function') fntInitCanvasScroll();
+
+                        // 4. Si estás en la página de pagar, refresca para evitar errores de pago vacío
+                        if (window.location.pathname.includes('carrito') || window.location.pathname.includes('procesarpago')) {
+                            location.reload();
+                        }
+
+                        swal("Carrito", "Tu carrito está ahora vacío.", "success");
+                    }
+                } catch (e) {
+                    console.error("Error al procesar el vaciado:", e);
                 }
             });
         }

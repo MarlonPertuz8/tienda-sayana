@@ -38,7 +38,8 @@
                                     onclick="fntUpdateQty('<?= $idReferencia; ?>','sub')">
                                     <i class="fs-12 fa fa-minus"></i>
                                 </button>
-                                <span class="m-lr-15 fs-16 flex-c-m">
+                                <!-- Agregamos un ID a la cantidad central para actualizarla rápido -->
+                                <span id="cant-modal-<?= $idReferencia; ?>" class="m-lr-15 fs-16 flex-c-m">
                                     <?= $producto['cantidad'] ?>
                                 </span>
                                 <button class="btn-qty btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m"
@@ -47,7 +48,8 @@
                                 </button>
                             </div>
 
-                            <span class="fs-14 cl3">
+                            <!-- AGREGAMOS LA CLASE clase-subtotal-modal- CON EL ID DE REFERENCIA -->
+                            <span class="fs-14 cl3 clase-subtotal-modal-<?= $idReferencia; ?>">
                                 <?= $producto['cantidad'] ?> x
                                 <?php if (isset($producto['precio_original']) && $producto['precio_original'] > $producto['precio']) { ?>
                                     <span style="text-decoration: line-through; color: #999; font-size: 0.8em;">

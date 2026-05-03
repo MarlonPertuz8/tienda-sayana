@@ -83,15 +83,12 @@ function fntAddCarrito(id, checkout = false) {
 }
 
 function fntUpdateQty(idp, action) {
-    console.log("ID:", idp, "ACTION:", action);
-    const base_url = document.body.getAttribute('data-baseurl'); 
-    
-    let request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
     let ajaxUrl = base_url + '/Carrito/updateCarrito';
     let formData = new FormData();
     formData.append('id', idp);
     formData.append('action', action);
     
+    let request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
     request.open("POST", ajaxUrl, true);
     request.send(formData);
 
@@ -100,28 +97,70 @@ function fntUpdateQty(idp, action) {
             try {
                 let objData = JSON.parse(request.responseText);
                 if (objData.status) {
-                    // 1. Actualiza la burbuja roja
-                    $('.js-show-cart').attr('data-notify', objData.cantCarrito);
                     
-                    // 2. Actualiza SOLO el contenido interno del modal
-                    $('#modalCarrito').html(objData.htmlCarrito);
+                    // 1. ELIMINACIÓN (Si llega a 0)
+                    if(objData.deleted) {
+                        if($('#row-'+idp).length > 0){
+                            $('#row-'+idp).fadeOut(300, function(){
+                                $(this).remove();
+                                if($('.item-carrito').length == 0) location.reload();
+                            });
+                        }
+                        // Animación para el modal
+                        $('.clase-subtotal-modal-'+idp).closest('li').fadeOut(300, function(){
+                            $(this).remove();
+                            if($('.header-cart-item').length == 0) $('#modalCarrito').html(objData.htmlCarrito);
+                        });
+                    }
+
+                    // 2. ACTUALIZAR EL MODAL
+                    if($('#modalCarrito').length > 0) $('#modalCarrito').html(objData.htmlCarrito);
                     
-                    // 3. Reinicia el scroll si es necesario
-                    if(typeof fntInitCanvasScroll === 'function') fntInitCanvasScroll();
+                    // Actualizar texto instantáneo "6 x COP120.000"
+                    if(!objData.deleted && $('.clase-subtotal-modal-'+idp).length > 0){
+                        if($('#cant-modal-'+idp).length > 0) $('#cant-modal-'+idp).html(objData.cantProducto);
+                        let precioUnitario = objData.precioUnitario ? objData.precioUnitario : objData.subtotalProducto;
+                        $('.clase-subtotal-modal-'+idp).html(objData.cantProducto + " x " + precioUnitario);
+                    }
+
+                    // 3. CORRECCIÓN DE LA BURBUJA (Header)
+                    // Actualizamos el número en todos los posibles lugares donde CozaStore lo guarda
+                    if($('.cantCarrito').length > 0) $('.cantCarrito').html(objData.cantCarrito);
                     
-                    /* 
-                       ELIMINAMOS EL RELOAD: 
-                       Si el usuario está en la página de "procesar pedido", 
-                       puedes actualizar los totales de esa página mediante JS 
-                       en lugar de recargar todo.
-                    */
+                    // Esto es lo que hace que cambie el círculo rojo en el icono del carrito
+                    $('.js-show-cart').attr('data-notify', objData.cantCarrito); 
+
+                    // 4. ACTUALIZAR TABLA DE PAGO (Página principal)
+                    if(!objData.deleted && $('.subtotal-'+idp).length > 0){
+                        let htmlPrecio = "";
+                        if(objData.precioTachado && objData.precioTachado !== objData.subtotalProducto) {
+                             htmlPrecio += `<span style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 5px;">${objData.precioTachado}</span>`;
+                        }
+                        htmlPrecio += `<span style="color: #f3635a; font-weight: bold;">${objData.subtotalProducto}</span>`;
+                        $('.subtotal-'+idp).html(htmlPrecio);
+                    }
+
+                    // 5. ACTUALIZAR TOTALES GENERALES
+                    if($('#subtotalCarrito').length > 0) $('#subtotalCarrito').html(objData.subtotalGeneral);
+
+                    let costoEnvio = parseFloat($('#txtCostoEnvio').val()) || 0;
+                    let totalConEnvio = objData.totalFinalNum + costoEnvio;
+                    
+                    let totalFormateado = "$" + totalConEnvio.toLocaleString('es-CO', {
+                        minimumFractionDigits: 0, 
+                        maximumFractionDigits: 0
+                    });
+
+                    if($('#totalCompra').length > 0) $('#totalCompra').html(totalFormateado);
+                    if($('#totalFinalCompra').length > 0) $('#totalFinalCompra').html(totalFormateado);
+
                 }
-            } catch (e) {
-                console.error("Error en updateCarrito:", e);
-            }
+            } catch (e) { console.error("Error al sincronizar burbuja:", e); }
         }
     }
 }
+
+
 
 function fntDelItem(idProducto) {
     const base_url = document.body.getAttribute('data-baseurl'); // Asegúrate de tener base_url

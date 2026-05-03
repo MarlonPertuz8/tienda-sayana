@@ -117,47 +117,68 @@ class Carrito extends Controllers
 public function updateCarrito()
 {
     if ($_POST) {
-        if (ob_get_length()) ob_clean();
-        // Recibimos la llave única directamente desde la vista
+        if (ob_get_length()) ob_clean(); 
+        
         $idKey = strClean($_POST['id']); 
         $action = strClean($_POST['action']);
+        $eliminado = false; // Variable de control
 
-        // Verificamos si la llave existe en el carrito de la sesión
         if (!isset($_SESSION['arrCarrito'][$idKey])) {
-            echo json_encode(["status" => false, "msg" => "No se encontró el producto en el joyero."]);
+            echo json_encode(["status" => false, "msg" => "Producto no encontrado."]);
             die();
         }
 
-        // Actualizamos la cantidad según la acción
+        // 1. Lógica de actualización de cantidad
         if ($action == "add") {
             $_SESSION['arrCarrito'][$idKey]['cantidad']++;
         } else if ($action == "sub") {
             if ($_SESSION['arrCarrito'][$idKey]['cantidad'] > 1) {
                 $_SESSION['arrCarrito'][$idKey]['cantidad']--;
             } else {
-                // Si la cantidad llega a 0, lo eliminamos
                 unset($_SESSION['arrCarrito'][$idKey]);
+                $eliminado = true; // Marcamos que el producto ya no existe
             }
         }
 
-        // Recalculamos el contador total de la burbuja
+        // 2. Recálculo de totales
+        $subtotalGeneral = 0;
+        $totalProductoActual = 0;
+        $precioOriginalTotal = 0;
         $cantCarrito = 0;
+
         if (!empty($_SESSION['arrCarrito'])) {
-            foreach ($_SESSION['arrCarrito'] as $pro) {
+            foreach ($_SESSION['arrCarrito'] as $key => $pro) {
+                $precioVenta = $pro['precio']; 
+                $subtotalGeneral += ($precioVenta * $pro['cantidad']);
                 $cantCarrito += $pro['cantidad'];
+                
+                if($key == $idKey){
+                    $totalProductoActual = $precioVenta * $pro['cantidad'];
+                    $precioOriginal = (isset($pro['precio_original']) && $pro['precio_original'] > 0) ? $pro['precio_original'] : $precioVenta;
+                    $precioOriginalTotal = $precioOriginal * $pro['cantidad'];
+                }
             }
         }
 
-        // Refrescamos el HTML del carrito lateral
+        $montoDescuento = !empty($_SESSION['descuento_detalle']) ? $_SESSION['descuento_detalle']['monto'] : 0;
+        $totalFinal = $subtotalGeneral - $montoDescuento;
+
+        // 3. GENERAR HTML PARA EL MODAL
         ob_start();
         $data = $_SESSION['arrCarrito'] ?? [];
         getModal('modalCarrito', $data);
         $htmlCarrito = ob_get_clean();
 
+        // 4. RESPUESTA JSON COMPLETA
         echo json_encode([
             "status" => true,
+            "deleted" => $eliminado, // Avisamos al JS si debe borrar la fila
             "cantCarrito" => $cantCarrito,
-            "htmlCarrito" => $htmlCarrito
+            "htmlCarrito" => $htmlCarrito, 
+            "precioTachado" => "$".formatMoneda($precioOriginalTotal),
+            "subtotalProducto" => "$".formatMoneda($totalProductoActual),
+            "subtotalGeneral" => "$".formatMoneda($subtotalGeneral),
+            "totalFinalNum" => $totalFinal
         ], JSON_UNESCAPED_UNICODE);
         die();
     }
