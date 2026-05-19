@@ -23,7 +23,13 @@
                             <span class="nav-text">Mi Perfil</span>
                         </a>
 
-                        <a href="#" class="nav-link-sayana btnMisPedidos"> <span class="nav-icon"><i class="fa fa-shopping-bag"></i></span>
+                        <a href="#" class="nav-link-sayana btnMisCupones">
+                            <span class="nav-icon"><i class="fa fa-ticket"></i></span>
+                            <span class="nav-text">Mis Cupones</span>
+                        </a>
+
+                        <a href="#" class="nav-link-sayana btnMisPedidos">
+                            <span class="nav-icon"><i class="fa fa-shopping-bag"></i></span>
                             <span class="nav-text">Mis Pedidos</span>
                         </a>
 
@@ -39,43 +45,43 @@
 
             <div class="col-md-8 col-lg-9 p-b-50">
                 <div id="renderPerfil">
-                <div class="bor10 p-lr-40 p-t-40 p-b-40 p-lr-15-sm card-perfil-sayana">
-                    <h4 class="mtext-109 cl2 p-b-30 title-perfil-sayana">
-                        <i class="fa fa-id-card m-r-10"></i> Información Personal
-                    </h4>
+                    <div class="bor10 p-lr-40 p-t-40 p-b-40 p-lr-15-sm card-perfil-sayana">
+                        <h4 class="mtext-109 cl2 p-b-30 title-perfil-sayana">
+                            <i class="fa fa-id-card m-r-10"></i> Información Personal
+                        </h4>
 
-                    <form id="formPerfilCliente">
-                        <div class="row">
-                            <div class="col-md-6 m-b-25">
-                                <span class="stext-110 cl2">Nombre</span>
-                                <div class="bor8 m-t-10 how-pos4-parent input-sayana-perfil">
-                                    <input class="stext-111 cl2 plh3 size-116 p-l-28" type="text" name="txtNombre" value="<?= $_SESSION['userData']['nombre']; ?>">
+                        <form id="formPerfilCliente">
+                            <div class="row">
+                                <div class="col-md-6 m-b-25">
+                                    <span class="stext-110 cl2">Nombre</span>
+                                    <div class="bor8 m-t-10 how-pos4-parent input-sayana-perfil">
+                                        <input class="stext-111 cl2 plh3 size-116 p-l-28" type="text" name="txtNombre" value="<?= $_SESSION['userData']['nombre']; ?>">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 m-b-25">
+                                    <span class="stext-110 cl2">Apellido</span>
+                                    <div class="bor8 m-t-10 how-pos4-parent input-sayana-perfil">
+                                        <input class="stext-111 cl2 plh3 size-116 p-l-28" type="text" name="txtApellido" value="<?= $_SESSION['userData']['apellido']; ?>">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12 m-b-25">
+                                    <span class="stext-110 cl2">Correo Electrónico</span>
+                                    <div class="bor8 m-t-10 how-pos4-parent input-email-readonly">
+                                        <input class="stext-111 cl2 plh3 size-116 p-l-28" type="email" value="<?= $_SESSION['userData']['email_user']; ?>" readonly>
+                                        <i class="fa fa-lock lock-icon-sayana"></i>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="col-md-6 m-b-25">
-                                <span class="stext-110 cl2">Apellido</span>
-                                <div class="bor8 m-t-10 how-pos4-parent input-sayana-perfil">
-                                    <input class="stext-111 cl2 plh3 size-116 p-l-28" type="text" name="txtApellido" value="<?= $_SESSION['userData']['apellido']; ?>">
-                                </div>
+                            <div class="flex-w flex-m p-t-15">
+                                <button class="flex-c-m btn-sayana-perfil trans-04 pointer">
+                                    GUARDAR CAMBIOS
+                                </button>
                             </div>
-
-                            <div class="col-md-12 m-b-25">
-                                <span class="stext-110 cl2">Correo Electrónico</span>
-                                <div class="bor8 m-t-10 how-pos4-parent input-email-readonly">
-                                    <input class="stext-111 cl2 plh3 size-116 p-l-28" type="email" value="<?= $_SESSION['userData']['email_user']; ?>" readonly>
-                                    <i class="fa fa-lock lock-icon-sayana"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="flex-w flex-m p-t-15">
-                            <button class="flex-c-m btn-sayana-perfil trans-04 pointer">
-                                GUARDAR CAMBIOS
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

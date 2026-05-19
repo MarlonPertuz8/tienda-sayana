@@ -146,12 +146,26 @@
                                 $idProducto = $producto['idproducto'].$producto['color'];
                         ?>
                                 <div class="flex-w flex-t bor12 p-b-15 p-t-15">
-                                    <div class="size-208 w-full-ssm" style="width: 70px;">
-                                        <img src="<?= $producto['imagen']; ?>"
-                                            alt="<?= $producto['producto']; ?>"
-                                            style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;"
-                                            onerror="this.src='<?= media(); ?>/images/uploads/default.png';">
-                                    </div>
+                                 <div class="size-208 w-full-ssm" style="width: 70px;">
+    <?php 
+        // Extraemos solo el nombre del archivo final (por ejemplo: "product.png")
+        $nombreImagenValida = basename($producto['imagen']);
+
+        // Si el nombre es 'product.png' o viene vacío, lo obligamos a ser default.png
+        if ($nombreImagenValida == 'product.png' || empty($producto['imagen'])) {
+            $rutaImagenMostrar = media() . '/images/uploads/default.png';
+        } else {
+            // Si es una imagen real, estructuramos su ruta normal
+            $rutaImagenMostrar = (strpos($producto['imagen'], 'http') !== false) 
+                                 ? $producto['imagen'] 
+                                 : media() . '/images/uploads/' . $producto['imagen'];
+        }
+    ?>
+    <img src="<?= $rutaImagenMostrar; ?>"
+         alt="<?= $producto['producto']; ?>"
+         style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;"
+         onerror="this.onerror=null; this.src='<?= media(); ?>/images/uploads/default.png';">
+</div>
 
                                     <div class="size-209 p-l-15 w-full-ssm">
                                         <span class="stext-110 cl2" style="font-weight: 600; display: block; margin-bottom: 5px;">

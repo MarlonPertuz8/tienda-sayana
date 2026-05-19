@@ -172,10 +172,19 @@ function sessionUser(int $idpersona)
 function uploadImage(array $data, string $name){
     if (empty($data['tmp_name'])) return false;
     
+    // Extraemos la extensión real del archivo subido
+    $fileName = $data['name'];
+    $arrExtension = explode(".", $fileName);
+    $extension = strtolower(end($arrExtension));
+
+    // Si el nombre que recibimos no tiene extensión, se la ponemos
+    $nombreFinal = (strpos($name, '.') !== false) ? $name : $name . '.' . $extension;
+    
     $url_temp = $data['tmp_name'];
-    $destino = 'Assets/images/uploads/' . $name;
+    $destino = 'Assets/images/uploads/' . $nombreFinal;
+    
     if (move_uploaded_file($url_temp, $destino)) {
-        return true; // Retornamos true si se movió con éxito
+        return $nombreFinal; // Retornamos el nombre COMPLETO (con extensión)
     }
     
     return false;

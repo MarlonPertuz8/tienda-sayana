@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // --- 1. GESTIÓN DE NOTIFICACIONES ---
-    // Seleccionamos tanto la campana de móvil como la de escritorio
     const btnNotif = $('.js-show-notifications');
 
     if (btnNotif.length > 0) {
@@ -33,15 +32,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 500);
         });
     }
-
-    // Botón para cerrar (la 'X' dentro del panel o el fondo oscuro)
     if (document.querySelector('.js-hide-notif')) {
         $('.js-hide-notif').on('click', function () {
             $('.js-panel-notif').removeClass('show-header-cart');
         });
     }
-
-    // --- 2. SELECCIÓN DE MÉTODOS DE PAGO (CORREGIDO) ---
+    // --- 2. SELECCIÓN DE MÉTODOS DE PAGO ---
     const paymentRadios = document.querySelectorAll('input[name="payment-method"]');
     const bankDetails = document.getElementById('bank-details');
     const inputHiddenPago = document.querySelector('#intTipopago');
@@ -49,18 +45,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (paymentRadios.length > 0) {
         paymentRadios.forEach((radio) => {
             radio.addEventListener("change", function () {
-                // Actualizamos el valor del hidden inmediatamente
                 if (inputHiddenPago) {
                     inputHiddenPago.value = this.value;
                 }
-
-                // Mostramos u ocultamos el cuadro de transferencia
                 if (bankDetails) {
-                    // Si el valor es 2 (Transferencia), se muestra
                     bankDetails.style.display = (this.value == "2") ? 'block' : 'none';
                 }
-
-                console.log("Método seleccionado: ", this.value);
             });
         });
     }
@@ -88,6 +78,37 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     }
+    // --- LÓGICA PARA MIS CUPONES ---
+let btnCupones = document.querySelector(".btnMisCupones");
+if (btnCupones) {
+    btnCupones.onclick = function (e) {
+        e.preventDefault();
+        let contenedor = document.querySelector('#renderPerfil');
+        if (contenedor) {
+            // Efecto de carga
+            contenedor.style.opacity = "0.5";
+            
+            // Ruta al nuevo método que creamos en el controlador
+            let ajaxUrl = base_url + '/clientes/getCuponesTab';
+            let request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+            
+            request.open("GET", ajaxUrl, true);
+            request.send();
+            
+            request.onreadystatechange = function () {
+                if (request.readyState == 4 && request.status == 200) {
+                    // Inyectamos la tabla de cupones
+                    contenedor.innerHTML = request.responseText;
+                    contenedor.style.opacity = "1";
+                    
+                    // Manejo de clase active
+                    document.querySelectorAll(".nav-link-sayana").forEach(el => el.classList.remove("active"));
+                    btnCupones.classList.add("active");
+                }
+            }
+        }
+    }
+}
 
     if (document.querySelector("#btnAplicarCupon")) {
         let btnCupon = document.querySelector("#btnAplicarCupon");
@@ -126,18 +147,16 @@ document.addEventListener('DOMContentLoaded', function () {
                         msgCupon.innerHTML = `<span style="color: #28a745;">${objData.msg}</span>`;
 
                         let totalLimpio = objData.total_descuento_format
-                            .replace(/\./g, '')   // quita separadores de miles
-                            .replace(',', '.')    // convierte decimal a punto
-                            .replace(/[^0-9.]/g, ''); // limpia $
+                            .replace(/\./g, '')  
+                            .replace(',', '.')   
+                            .replace(/[^0-9.]/g, '');
 
                         totalLimpio = parseFloat(totalLimpio);
 
-                        // 🔥 ACTUALIZAMOS SUBTOTAL CORRECTAMENTE
                         let elSubtotal = document.querySelector("#subtotalCarrito");
                         elSubtotal.innerHTML = objData.total_descuento_format;
                         elSubtotal.setAttribute('data-value', totalLimpio);
 
-                        // 🔥 RECALCULAR TOTAL
                         let costoEnvioActual = parseFloat(document.querySelector("#txtCostoEnvio")?.value || 0);
                         actualizarTotalPedido(costoEnvioActual);
 
@@ -196,8 +215,6 @@ function fntGetNotificacionesCount() {
 
                         // Actualiza número
                         campana.setAttribute('data-notify', count);
-
-                        // 🔥 CLAVE: manejar estilos visuales
                         if (count == 0) {
                             campana.classList.remove('icon-header-noti');
                         } else {
@@ -238,14 +255,11 @@ function escucharNotificaciones() {
                 campanas.forEach(campana => {
                     let actual = parseInt(campana.getAttribute('data-notify')) || 0;
 
-                    // 🔥 SOLO SI HAY NUEVAS
                     if (count > actual) {
                         animarCampana(campana);
                         reproducirSonido();
                     }
-
                     campana.setAttribute('data-notify', count);
-
                     if (count == 0) {
                         campana.classList.remove('icon-header-noti');
                     } else {
@@ -253,8 +267,6 @@ function escucharNotificaciones() {
                     }
                 });
             }
-
-            // 🔁 vuelve a escuchar
             setTimeout(escucharNotificaciones, 5000);
 
         })
@@ -263,7 +275,6 @@ function escucharNotificaciones() {
         });
 }
 
-// iniciar
 escucharNotificaciones();
 
 function animarCampana(el) {
@@ -399,7 +410,6 @@ function fntViewProducto(idproducto) {
                         },
                     });
 
-                    // 5. MOSTRAR MODAL E INICIALIZAR SELECT2 CORREGIDO
                     $('.js-modal1').addClass('show-modal1');
 
                     setTimeout(() => {
@@ -410,7 +420,6 @@ function fntViewProducto(idproducto) {
                             dir: 'ltr' // Fuerza la dirección estándar
                         });
 
-                        // Forzamos que Select2 no calcule posiciones "smart" que lo suban
                         $(selectColor).on('select2:open', function (e) {
                             $('.select2-dropdown').hide();
                             setTimeout(function () {
@@ -427,7 +436,6 @@ function fntViewProducto(idproducto) {
     }
 }
 
-// Función para asegurar que no se vea NADA de la sección color
 function ocultarSeccionColor(contenedor, select) {
     if (contenedor) {
         contenedor.style.setProperty("display", "none", "important");
@@ -438,28 +446,48 @@ function ocultarSeccionColor(contenedor, select) {
 }
 
 /* =============================================================================
-   LOGUEO DESDE LA TIENDA (CORREGIDO PARA SAYANA LUXURY)
+   AUTENTICACIÓN EN PASARELA (CORREGIDA E INTELIGENTE)
 ============================================================================= */
 if (document.querySelector("#formLogin")) {
     let formLogin = document.querySelector("#formLogin");
+    
     formLogin.onsubmit = function (e) {
         e.preventDefault();
 
-        // Usamos los IDs de tu diseño de Sayana Luxury
-        let strEmail = document.querySelector("#txtEmail").value;
-        let strPassword = document.querySelector("#txtPassword").value;
+        // BUSCADOR INTELIGENTE: Intenta capturar con 'Login' y si no existe, busca el ID genérico
+        let inputEmail = document.querySelector("#txtEmailLogin") || document.querySelector("#txtEmail");
+        let inputPassword = document.querySelector("#txtPasswordLogin") || document.querySelector("#txtPassword");
 
-        if (strEmail == "" || strPassword == "") {
-            swal("Atención", "Escriba email y contraseña.", "error");
+        // Si de verdad no existe ninguno de los dos en el HTML, saca la alerta controlada
+        if (!inputEmail || !inputPassword) {
+            console.error("⚠️ Error crítico: No se encontraron los inputs de correo o contraseña (#txtEmail / #txtEmailLogin) en el DOM.");
             return false;
         }
 
+        let strEmail = inputEmail.value.trim();
+        let strPassword = inputPassword.value.trim();
+
+        // Validación básica de campos vacíos
+        if (strEmail == "" || strPassword == "") {
+            swal("Atención", "Por favor, escribe tu correo y contraseña.", "error");
+            return false;
+        }
+
+        // Mostrar cargador si cuentas con él en tu estructura general
         let divLoading = document.querySelector("#divLoading");
         if (divLoading) { divLoading.style.display = "flex"; }
 
+        // Configuración de la petición AJAX
         let request = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
         let ajaxUrl = base_url + '/Login/loginUser';
-        let formData = new FormData(formLogin);
+        
+        let formData = new FormData();
+        // Enviamos todas las estructuras posibles para que tu controlador PHP reciba lo que pida sin problemas
+        formData.append('txtEmail', strEmail);
+        formData.append('txtPassword', strPassword);
+        formData.append('txtEmailLogin', strEmail); 
+        formData.append('txtPasswordLogin', strPassword); 
+        formData.append('origen', 'tienda'); 
 
         request.open("POST", ajaxUrl, true);
         request.send(formData);
@@ -468,32 +496,25 @@ if (document.querySelector("#formLogin")) {
             if (request.readyState == 4 && request.status == 200) {
                 try {
                     let objData = JSON.parse(request.responseText);
-
+                    
                     if (objData.status) {
-                        /* LÓGICA DE REDIRECCIÓN INTELIGENTE:
-                           Si el usuario tiene rol de cliente, recargamos la tienda.
-                           Si es administrador o empleado, lo mandamos al dashboard.
-                        */
-                        if (objData.role == 'cliente') {
-                            window.location.reload();
-                        } else {
-                            window.location = base_url + '/dashboard';
-                        }
+                        // ¡Éxito! Forzamos recarga limpia para que PHP renderice la sección de "Detalles de Envío"
+                        window.location.reload();
                     } else {
-                        // Aviso cualitativo de error (Riesgo alto de acceso fallido)
+                        // Si el controlador devuelve un error (credenciales incorrectas, etc)
                         swal("Atención", objData.msg, "error");
-                        document.querySelector('#txtPassword').value = "";
+                        inputPassword.value = "";
                         if (divLoading) { divLoading.style.display = "none"; }
                     }
                 } catch (error) {
-                    console.error("Error al procesar la respuesta del servidor", error);
+                    console.error("Error al parsear la respuesta JSON del servidor:", error);
+                    swal("Error", "No se pudo procesar la solicitud. Intente más tarde.", "error");
                     if (divLoading) { divLoading.style.display = "none"; }
                 }
             }
-        }
-    }
+        };
+    };
 }
-
 if (document.querySelector("#formRegistro")) {
     let formRegistro = document.querySelector("#formRegistro");
     formRegistro.onsubmit = function (e) {
@@ -504,7 +525,6 @@ if (document.querySelector("#formRegistro")) {
         // 1. CAPTURAMOS EL VALOR DEL NUEVO CAMPO
         let strTelefono = document.querySelector("#txtTelefonoRegistro").value;
 
-        // 2. LO AÑADIMOS A LA VALIDACIÓN OBLIGATORIA
         if (strNombre == "" || strApellido == "" || strEmail == "" || strTelefono == "") {
             swal("Atención", "Todos los campos son obligatorios.", "error");
             return false;
@@ -816,10 +836,6 @@ function fntGetNotificaciones() {
                         notificaciones.forEach(function (notif) {
                             let fecha = notif.fecha || "";
                             let mensajeFinal = notif.mensaje || notif.descripcion || "Nueva actualización";
-
-                            // 🛠️ SOLUCIÓN DEFINITIVA: 
-                            // Usamos el nuevo campo pedido_id que creaste en la DB.
-                            // Si por alguna razón está vacío, intentamos extraer del texto como respaldo.
                             let idExtraido = null;
                             let match = mensajeFinal.match(/#(\d+)/);
                             if (match) idExtraido = match[1];
@@ -906,31 +922,43 @@ if (document.querySelector("#listBarrio")) {
         // 5. Calcular y actualizar el Total Final
         actualizarTotalPedido(costo);
 
-        console.log("Costo de envío actualizado: " + costo);
+        
     });
 }
 
 function actualizarTotalPedido(costoEnvio) {
+    // 1. IDs correctos según tu HTML
     const elSubtotal = document.querySelector("#subtotalCarrito");
-    const elTotal = document.querySelector("#totalCarrito");
+    const elTotal = document.querySelector("#totalFinalCompra"); 
+    const elCostoEnvioOculto = document.querySelector("#txtCostoEnvio");
 
     if (elSubtotal && elTotal) {
-        // Leemos el subtotal base (si ya se aplicó cupón, este valor ya viene rebajado)
-        let subtotalBase = parseFloat(elSubtotal.getAttribute('data-value') || 0);
+        // 2. LEER SUBTOTAL: 
+        // Intentamos leer de data-value, si no existe, intentamos limpiar el texto del HTML
+        let subtotalBase = parseFloat(elSubtotal.getAttribute('data-value'));
+        
+        if (isNaN(subtotalBase)) {
+            // Si data-value falla, limpiamos el texto "$ 150.000" -> 150000
+            subtotalBase = parseFloat(elSubtotal.innerText.replace(/[$. ]/g, '').replace(',', '.') || 0);
+        }
+  
         let envio = parseFloat(costoEnvio || 0);
 
+        // 4. SUMATORIA REAL
         let totalFinal = subtotalBase + envio;
 
-        // Formateador de moneda colombiana
+        // 5. FORMATEAR A MONEDA COLOMBIANA
         let formatter = new Intl.NumberFormat('es-CO', {
             style: 'currency',
             currency: 'COP',
             minimumFractionDigits: 0
         });
 
-        // Actualizamos la vista y el atributo de valor
+        // 6. ACTUALIZAR VISTA
         elTotal.innerHTML = formatter.format(totalFinal);
-        elTotal.setAttribute('data-value', totalFinal);
+        
+        // Actualizamos el input oculto por si acaso
+        if(elCostoEnvioOculto) elCostoEnvioOculto.value = envio;
     }
 }
 
@@ -942,7 +970,6 @@ document.addEventListener("click", function activarAudio() {
         audio.play().then(() => {
             audio.pause();
             audio.currentTime = 0;
-            console.log("🔓 audio desbloqueado");
         }).catch(e => {
             console.warn("Sigue bloqueado:", e);
         });

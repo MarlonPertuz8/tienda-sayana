@@ -29,7 +29,7 @@
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Imagen</th>
+                  <th>Multimedia</th>
                   <th>Título</th>
                   <th>Enlace / Link</th>
                   <th>Status</th>

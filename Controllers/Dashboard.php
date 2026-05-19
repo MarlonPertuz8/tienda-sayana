@@ -1,17 +1,26 @@
 <?php
 class Dashboard extends Controllers
 {
-
     public function __construct()
     {
         parent::__construct();
         session_start();
 
+        // 1. Si no hay sesión iniciada, mandamos al login
         if (empty($_SESSION['login'])) {
             header('Location: ' . base_url() . '/login');
             die();
         }
 
+        // 2. Si el usuario es un CLIENTE (Rol 5), lo expulsamos al Home de la tienda
+        // El cliente no debe tener acceso a ninguna parte del panel administrativo
+        if ($_SESSION['userData']['idrol'] == 5) {
+            header('Location: ' . base_url());
+            die();
+        }
+
+        // 3. Si no es Admin (1) y tampoco es Cliente (ejemplo: un empleado), 
+        // pero intenta entrar al Dashboard general sin permisos, lo mandamos a pedidos
         if ($_SESSION['userData']['idrol'] != 1) {
             header('Location: ' . base_url() . '/pedidos');
             die();
@@ -121,7 +130,7 @@ class Dashboard extends Controllers
                 "wompi"  => $pagosData['wompi'],
                 "trans"  => $pagosData['trans'],
                 "efec"   => $pagosData['efec'],
-                "consolidado" => $pagosData['consolidado'], // <--- ESTO ES LO QUE TE FALTABA
+                "consolidado" => $pagosData['consolidado'], 
                 "adicionales" => $adicionales
             );
 
@@ -231,7 +240,7 @@ class Dashboard extends Controllers
                 break;
         }
 
-        // 3. CONSTRUCCIÓN DEL HTML (ESTO ES LO QUE TE FALTABA)
+        // 3. CONSTRUCCIÓN DEL HTML
         if ($tbody == "") {
             $html = '
         <div class="text-center p-4">
@@ -268,7 +277,7 @@ class Dashboard extends Controllers
 
         $arrData = array(
             "status" => true,
-            "pedidos_hoy" => $pedidosNuevos, // Este es el que compararemos en JS
+            "pedidos_hoy" => $pedidosNuevos,
             "notificaciones" => $notificaciones
         );
 

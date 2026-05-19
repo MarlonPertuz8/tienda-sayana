@@ -12,7 +12,8 @@
           <input type="hidden" id="idSlider" name="idSlider" value="">
           <input type="hidden" id="foto_actual" name="foto_actual" value="">
           <input type="hidden" id="foto_remove" name="foto_remove" value="0">
-          
+          <input type="hidden" id="video_actual" name="video_actual" value="">
+
           <p class="text-muted small">Los campos con asterisco (<span class="text-danger">*</span>) son obligatorios.</p>
 
           <div class="row">
@@ -36,20 +37,27 @@
                     <option value="1">Activo</option>
                     <option value="2">Inactivo</option>
                   </select>
-                </div> 
+                </div>
+                <div class="form-group">
+                  <label class="font-weight-bold text-dark">Tipo de contenido</label>
+                  <select class="form-control selectpicker" id="listTipo" name="listTipo">
+                    <option value="imagen">Imagen</option>
+                    <option value="video">Video</option>
+                  </select>
+                </div>
               </div>
             </div>
             <div class="col-md-6">
               <div class="bg-white p-3 shadow-sm text-center h-100" style="border-radius: 20px;">
                 <label class="font-weight-bold d-block">Imagen del Banner</label>
-                
+
                 <div class="prevPhoto mb-3 position-relative">
                   <span class="delPhoto notBlock" style="background: #e74a3b; color: white; border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; position: absolute; top: 5px; right: 5px; cursor: pointer; z-index: 10;">×</span>
                   <div id="imgSlider" class="img-preview-container bg-light shadow-sm" style="border-radius: 15px; min-height: 150px; overflow: hidden;"></div>
                 </div>
-                
+
                 <div class="upimg">
-                  <input type="file" name="foto" id="foto" accept="image/*" class="d-none">
+                  <input type="file" name="foto" id="foto" accept="image/*,video/mp4,video/webm" class="d-none">
                   <label for="foto" class="btn btn-primary btn-block shadow-sm" style="border-radius: 25px;">
                     <i class="fas fa-image"></i> Seleccionar Imagen
                   </label>
@@ -59,7 +67,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="modal-footer border-0 p-0 mt-4">
             <button id="btnActionForm" class="btn btn-primary shadow-sm" type="submit" style="border-radius: 25px; padding: 10px 30px;">
               <i class="fa fa-check-circle"></i> <span id="btnText">Guardar</span>
@@ -110,7 +118,7 @@
               <tr>
                 <td colspan="2" class="text-center pt-4">
                   <strong>Banner:</strong>
-                  <div id="imgSlider" class="mt-3 shadow-sm mx-auto" style="border-radius: 15px; overflow: hidden; background: #f8f9fa;">
+                  <div id="imgSliderView" class="mt-3 shadow-sm mx-auto" style="border-radius: 15px; overflow: hidden; background: #f8f9fa;">
                   </div>
                 </td>
               </tr>

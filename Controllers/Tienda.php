@@ -3,9 +3,11 @@ require_once("Models/TCategoria.php");
 require_once("Models/TProducto.php");
 require_once("Models/TNotificacion.php");
 
+require_once("Models/TCampana.php");
+
 class Tienda extends Controllers
 {
-    use TCategoria, TProducto, TNotificacion;
+    use TCategoria, TProducto, TNotificacion, TCampana;
 
     public function __construct()
     {
@@ -49,40 +51,40 @@ class Tienda extends Controllers
         }
     }
 
-   public function index($pagina = 1)
-{
-    // Paginación
-    $porPagina = 8; 
-    $numPagina = is_numeric($pagina) ? (int)$pagina : 1;
-    $inicio = ($numPagina - 1) * $porPagina;
+    public function index($pagina = 1)
+    {
+        // Paginación
+        $porPagina = 8;
+        $numPagina = is_numeric($pagina) ? (int)$pagina : 1;
+        $inicio = ($numPagina - 1) * $porPagina;
 
-    $data['tag_page'] = NOMBRE_EMPRESA . " | Tienda";
-    $data['page_title'] = "Nuestra Tienda";
-    $data['page_name'] = "tienda";
+        $data['tag_page'] = NOMBRE_EMPRESA . " | Tienda";
+        $data['page_title'] = "Nuestra Tienda";
+        $data['page_name'] = "tienda";
 
-    if (!empty($_GET['s'])) {
-        $busqueda = strClean($_GET['s']);
-        $data['productos'] = $this->getBusquedaT($busqueda);
-        $data['page_title'] = "Resultados para: " . $busqueda;
-    } else {
-        // Traemos el conteo y los productos con la nueva función
-        $totalProductos = $this->cantProductosT();
-        $data['productos'] = $this->getProductosPageT($inicio, $porPagina);
-        
-        $data['total_paginas'] = ceil($totalProductos / $porPagina);
-        $data['pagina'] = $numPagina;
+        if (!empty($_GET['s'])) {
+            $busqueda = strClean($_GET['s']);
+            $data['productos'] = $this->getBusquedaT($busqueda);
+            $data['page_title'] = "Resultados para: " . $busqueda;
+        } else {
+            // Traemos el conteo y los productos con la nueva función
+            $totalProductos = $this->cantProductosT();
+            $data['productos'] = $this->getProductosPageT($inicio, $porPagina);
+
+            $data['total_paginas'] = ceil($totalProductos / $porPagina);
+            $data['pagina'] = $numPagina;
+        }
+
+        // Tu lógica de formato que ya tienes
+        if (!empty($data['productos'])) {
+            $this->formatPrecios($data['productos']);
+        }
+
+        $data['categorias'] = $this->getCategoriasT(null);
+        $data['materiales'] = $this->getMaterialesT();
+
+        $this->views->getView($this, "tienda", $data);
     }
-
-    // Tu lógica de formato que ya tienes
-    if(!empty($data['productos'])){
-        $this->formatPrecios($data['productos']);
-    }
-
-    $data['categorias'] = $this->getCategoriasT(null);
-    $data['materiales'] = $this->getMaterialesT();
-
-    $this->views->getView($this, "tienda", $data);
-}
 
     public function categoria($params)
     {
@@ -153,49 +155,49 @@ class Tienda extends Controllers
         die();
     }
 
-public function producto($params)
-{
-    // 1. Verificación inicial de parámetros
-    if (empty($params)) {
-        header("Location:" . base_url() . '/tienda');
-        die();
+    public function producto($params)
+    {
+        // 1. Verificación inicial de parámetros
+        if (empty($params)) {
+            header("Location:" . base_url() . '/tienda');
+            die();
+        }
+
+        $strRuta = strClean($params);
+
+        // 2. Intento de búsqueda: Primero por RUTA (URL amigable)
+        $data['producto'] = $this->getProductoT($strRuta);
+
+        // 3. Fallback: Si no lo encuentra por ruta, intentamos por ID numérico
+        if (empty($data['producto']) && is_numeric($strRuta)) {
+            $data['producto'] = $this->getProductoIDT(intval($strRuta));
+        }
+
+        // 4. Redirección final si el producto definitivamente no existe
+        if (empty($data['producto'])) {
+            header("Location:" . base_url() . '/tienda');
+            die();
+        }
+
+        // 5. Procesar precios y lógica de visualización
+        // Usamos el método formatPrecios que ya definiste en tu controlador
+        $this->formatPrecios($data['producto']);
+
+        $idProducto = $data['producto']['idproducto'];
+        $idCategoria = $data['producto']['categoriaid'];
+
+        // 6. Obtener y formatear productos relacionados
+        $data['productos_relacionados'] = $this->getProductosRelacionadosT($idCategoria, $idProducto);
+        $this->formatPrecios($data['productos_relacionados']);
+
+        // 7. Configuración de meta-datos de la página
+        $data['tag_page'] = NOMBRE_EMPRESA . " - " . $data['producto']['nombre'];
+        $data['page_title'] = $data['producto']['nombre'];
+        $data['page_name'] = "producto";
+
+        // 8. Carga de la vista
+        $this->views->getView($this, "producto", $data);
     }
-
-    $strRuta = strClean($params);
-
-    // 2. Intento de búsqueda: Primero por RUTA (URL amigable)
-    $data['producto'] = $this->getProductoT($strRuta);
-
-    // 3. Fallback: Si no lo encuentra por ruta, intentamos por ID numérico
-    if (empty($data['producto']) && is_numeric($strRuta)) {
-        $data['producto'] = $this->getProductoIDT(intval($strRuta));
-    }
-
-    // 4. Redirección final si el producto definitivamente no existe
-    if (empty($data['producto'])) {
-        header("Location:" . base_url() . '/tienda');
-        die();
-    }
-
-    // 5. Procesar precios y lógica de visualización
-    // Usamos el método formatPrecios que ya definiste en tu controlador
-    $this->formatPrecios($data['producto']);
-
-    $idProducto = $data['producto']['idproducto'];
-    $idCategoria = $data['producto']['categoriaid'];
-
-    // 6. Obtener y formatear productos relacionados
-    $data['productos_relacionados'] = $this->getProductosRelacionadosT($idCategoria, $idProducto);
-    $this->formatPrecios($data['productos_relacionados']);
-
-    // 7. Configuración de meta-datos de la página
-    $data['tag_page'] = NOMBRE_EMPRESA . " - " . $data['producto']['nombre'];
-    $data['page_title'] = $data['producto']['nombre'];
-    $data['page_name'] = "producto";
-
-    // 8. Carga de la vista
-    $this->views->getView($this, "producto", $data);
-}
 
 
     // 1. ELIMINAR UN PRODUCTO DEL JOYERO
@@ -439,4 +441,37 @@ public function producto($params)
 
         $this->views->getView($this, "wishlist", $data);
     }
+
+    public function campana($params)
+    {
+        if (empty($params)) {
+            header("Location: " . base_url() . '/tienda');
+            die();
+        }
+
+        // Limpiamos el slug que viene por parámetro
+        $strRuta = strClean($params);
+
+        // Buscamos la campaña en la base de datos (usando el Trait TCampana)
+        // Esta función debe existir en tu TCampana.php y validar fechas/estado
+        $data['campana'] = $this->getCampanaT($strRuta);
+
+        if (empty($data['campana'])) {
+            // Si la campaña no existe, es vieja o está inactiva, al home
+            header("Location: " . base_url());
+            die();
+        }
+
+        // Configuración de la vista
+        $data['tag_page'] = NOMBRE_EMPRESA . " | " . $data['campana']['nombre'];
+        $data['page_title'] = $data['campana']['nombre'];
+        $data['page_name'] = "campana";
+
+        // El banner completo para usarlo en la vista
+        $data['campana']['url_banner'] = media() . '/images/uploads/' . $data['campana']['banner_landing'];
+
+        // Cargamos la vista: Views/Tienda/campana.php (o Views/Campana/campana.php según tu estructura)
+        $this->views->getView($this, "campana", $data);
+    }
+    
 }

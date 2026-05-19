@@ -25,6 +25,9 @@
 
     <script>
         const base_url = "<?= base_url(); ?>";
+        // Variables de control de sesión para la ruleta
+        const userLoged = <?= isset($_SESSION['login']) ? 'true' : 'false' ?>;
+        const userId = <?= isset($_SESSION['idUser']) ? $_SESSION['idUser'] : '0' ?>;
     </script>
 </head>
 
@@ -39,7 +42,7 @@
     }
     ?>
 
-   <header id="header-sayana">
+    <header id="header-sayana">
         <div class="container-menu-desktop">
             <div class="wrap-menu-desktop">
                 <nav class="limiter-menu-desktop container">
@@ -171,7 +174,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="wrap-header-user pos-relative p-l-10">
                     <div class="icon-header-item cl2 hov-cl1 trans-04 js-show-user">
                         <i class="zmdi zmdi-account-circle"></i>

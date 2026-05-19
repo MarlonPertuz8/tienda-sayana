@@ -5,13 +5,13 @@
 // 1. PARCHE GLOBAL PARA AUTO-CIERRE (Debe ir al inicio)
 // Esto intercepta tanto swal() como Swal.fire()
 (function() {
-    // Si usas SweetAlert2
     if (typeof Swal !== 'undefined' && Swal.fire) {
         const originalSwalFire = Swal.fire;
         Swal.fire = function(...args) {
             let options = args[0];
             if (typeof options === 'object' && options !== null) {
-                if (options.showConfirmButton === undefined && !options.buttons) {
+                // REGLA DE ORO: Si NO pides botones Y NO pides timer false, ponemos el auto-cierre
+                if (!options.showConfirmButton && options.timer !== false && !options.buttons) {
                     options.timer = options.timer || 2500;
                     options.timerProgressBar = true;
                     options.showConfirmButton = false;
@@ -31,25 +31,22 @@
         };
     }
 
-    // Si usas SweetAlert 1 (la función swal)
     if (typeof swal !== 'undefined') {
         const originalSwal = window.swal;
         window.swal = function(...args) {
             let options = args[0];
-            // Si es un mensaje simple swal("titulo", "msg", "icono")
-            if (typeof options === 'string' && args.length >= 1) {
-                let config = {
+            if (typeof options === 'string') {
+                return originalSwal({
                     title: args[0],
                     text: args[1] || "",
                     icon: args[2] || "success",
                     timer: 2500,
                     buttons: false
-                };
-                return originalSwal(config);
+                });
             }
-            // Si es un objeto pero no tiene botones de confirmación
-            if (typeof options === 'object' && !options.buttons) {
-                options.timer = options.timer || 2500;
+            // Si es objeto y no tiene botones definidos, le ponemos el timer
+            if (typeof options === 'object' && !options.buttons && options.timer !== false) {
+                options.timer = 2500;
                 options.buttons = false;
             }
             return originalSwal.apply(window, args);
@@ -183,3 +180,4 @@ $(document).ready(function() {
         });
     }
 });
+

@@ -71,6 +71,9 @@
           <?php if (!empty($_SESSION['permisos'][7]['r'])) { ?>
             <li><a class="treeview-item" href="<?= base_url(); ?>/slider"><i class="icon fas fa-image"></i> Sliders</a></li>
           <?php } ?>
+          <?php if (!empty($_SESSION['permisos'][12]['r'])) { ?>
+            <li><a class="treeview-item" href="<?= base_url(); ?>/campanas"><i class="icon fa fa-bullhorn"></i> Campañas</a></li>
+          <?php } ?>
 
           <?php if (!empty($_SESSION['permisos'][8]['r'])) { ?>
             <li><a class="treeview-item" href="<?= base_url(); ?>/cupones"><i class="icon fas fa-ticket-alt"></i> Cupones</a></li>

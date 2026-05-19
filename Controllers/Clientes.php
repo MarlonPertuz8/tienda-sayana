@@ -19,14 +19,20 @@ class Clientes extends Controllers
 
 
     // --- NUEVO MÉTODO: PERFIL PARA LA TIENDA ---
-    public function perfil()
+   public function perfil()
     {
         $data['tag_page'] = "Mi Perfil - Sayana Luxury";
         $data['page_title'] = "Mi Perfil";
         $data['page_name'] = "mi_perfil";
-        $data['page_functions_js'] = "functions_cliente_perfil.js";
+        $data['page_functions_js'] = "functions_cliente.js";
 
-        // Carga la vista en Views/Clientes/perfil.php
+        // BLINDAJE: Captura el ID si es admin o si es cliente común
+        $idpersona = $_SESSION['idUser'] ?? $_SESSION['userData']['idpersona'] ?? 0;
+        
+        require_once("Models/CuponModel.php");
+        $objCupones = new CuponModel();
+        $data['cupones'] = $objCupones->getCuponesCliente($idpersona);
+
         $this->views->getView($this, "perfil", $data);
     }
     public function index()
@@ -197,5 +203,18 @@ class Clientes extends Controllers
         $idpersona = $_SESSION['idUser'];
         $data['pedidos'] = $this->getPedidosT($idpersona);
         $this->views->getView($this, "tabla_pedidos", $data);
+    }
+
+  public function getCuponesTab()
+    {
+        if (empty($_SESSION['login'])) { die(); }
+        
+        // BLINDAJE: Captura el ID si es admin o si es cliente común
+        $idpersona = $_SESSION['idUser'] ?? $_SESSION['userData']['idpersona'] ?? 0;
+        
+        require_once("Models/CuponModel.php");
+        $objCupones = new CuponModel();
+        $data['cupones'] = $objCupones->getCuponesCliente($idpersona);
+        $this->views->getView($this, "tabla_cupones", $data);
     }
 }

@@ -174,4 +174,37 @@ class Cupones extends Controllers
         }
         die();
     }
+    public function registrarCuponRuleta()
+{
+    if (empty($_SESSION['login'])) {
+        echo json_encode(["status" => false, "msg" => "Debes iniciar sesión."], JSON_UNESCAPED_UNICODE);
+        die();
+    }
+
+    if ($_POST) {
+        $idUsuario = $_SESSION['idUser'];
+        
+
+        $yaParticipo = $this->model->verificarParticipacionRuleta($idUsuario);
+
+        if (!empty($yaParticipo)) {
+            echo json_encode(["status" => false, "msg" => "Ya has obtenido un premio anteriormente."], JSON_UNESCAPED_UNICODE);
+            die();
+        }
+
+        $strCodigo = strClean(strtoupper($_POST['codigo']));
+        $intDescuento = intval($_POST['descuento']);
+        $strFechaVenc = date("Y-m-d", strtotime('+30 days'));
+
+        // Registramos en ambas tablas mediante el modelo
+        $request = $this->model->insertarCuponGarantizado($strCodigo, $intDescuento, $strFechaVenc, $idUsuario);
+        
+        if ($request > 0) {
+            echo json_encode(["status" => true, "msg" => "¡Cupón guardado en tu perfil!"]);
+        } else {
+            echo json_encode(["status" => false, "msg" => "Error al procesar el premio."]);
+        }
+        die();
+    }
+}
 }

@@ -14,7 +14,7 @@ class Carrito extends Controllers
         session_start();
     }
 
-    public function addCarrito()
+  public function addCarrito()
     {
         if ($_POST) {
             if (ob_get_length()) ob_clean();
@@ -45,13 +45,22 @@ class Carrito extends Controllers
             // Si el color es "Celeste", la llave será ej: "12Celeste"
             $idCarrito = $idProducto . $color;
 
+            // --- CORRECCIÓN DE LA RUTA DE LA IMAGEN (Evita el Error 404) ---
+            if (!empty($arrProducto['images']) && !empty($arrProducto['images'][0]['url_image'])) {
+                // Si el producto tiene imágenes, estructuramos la URL completa hacia la carpeta de uploads
+                $rutaImagen = base_url() . '/Assets/images/uploads/' . $arrProducto['images'][0]['url_image'];
+            } else {
+                // Si viene vacío, asignamos directamente la imagen por defecto con su ruta absoluta
+                $rutaImagen = base_url() . '/Assets/images/uploads/default.png';
+            }
+
             $arrCarrito = array(
                 'idproducto' => $idProducto,
                 'producto'   => $arrProducto['nombre'],
                 'cantidad'   => $cantidad,
                 'precio'     => $precioFinal,
                 'precio_original' => $precioBase,
-                'imagen'     => (!empty($arrProducto['images'])) ? $arrProducto['images'][0]['url_image'] : "",
+                'imagen'     => $rutaImagen, // Guardamos la URL absoluta procesada arriba
                 'color'      => $color
             );
 
@@ -80,109 +89,109 @@ class Carrito extends Controllers
         }
     }
 
-   public function delCarrito()
-{
-    if ($_POST) {
-        if (ob_get_length()) ob_clean();
-        // Recibimos la llave única (ej: "14Plata")
-        $idProducto = strClean($_POST['id']); 
+    public function delCarrito()
+    {
+        if ($_POST) {
+            if (ob_get_length()) ob_clean();
+            // Recibimos la llave única (ej: "14Plata")
+            $idProducto = strClean($_POST['id']);
 
-        if (isset($_SESSION['arrCarrito'][$idProducto])) {
-            unset($_SESSION['arrCarrito'][$idProducto]);
-        }
-
-        // Calculamos la nueva cantidad total
-        $cantCarrito = 0;
-        if (!empty($_SESSION['arrCarrito'])) {
-            foreach ($_SESSION['arrCarrito'] as $pro) {
-                $cantCarrito += $pro['cantidad'];
+            if (isset($_SESSION['arrCarrito'][$idProducto])) {
+                unset($_SESSION['arrCarrito'][$idProducto]);
             }
-        }
 
-        // Generamos el nuevo HTML del modal
-        ob_start();
-        $data = $_SESSION['arrCarrito'] ?? [];
-        getModal('modalCarrito', $data);
-        $htmlCarrito = ob_get_clean();
-
-        echo json_encode([
-            "status" => true,
-            "cantCarrito" => $cantCarrito,
-            "htmlCarrito" => $htmlCarrito
-        ], JSON_UNESCAPED_UNICODE);
-        die();
-    }
-}
-
-public function updateCarrito()
-{
-    if ($_POST) {
-        if (ob_get_length()) ob_clean(); 
-        
-        $idKey = strClean($_POST['id']); 
-        $action = strClean($_POST['action']);
-        $eliminado = false; // Variable de control
-
-        if (!isset($_SESSION['arrCarrito'][$idKey])) {
-            echo json_encode(["status" => false, "msg" => "Producto no encontrado."]);
-            die();
-        }
-
-        // 1. Lógica de actualización de cantidad
-        if ($action == "add") {
-            $_SESSION['arrCarrito'][$idKey]['cantidad']++;
-        } else if ($action == "sub") {
-            if ($_SESSION['arrCarrito'][$idKey]['cantidad'] > 1) {
-                $_SESSION['arrCarrito'][$idKey]['cantidad']--;
-            } else {
-                unset($_SESSION['arrCarrito'][$idKey]);
-                $eliminado = true; // Marcamos que el producto ya no existe
-            }
-        }
-
-        // 2. Recálculo de totales
-        $subtotalGeneral = 0;
-        $totalProductoActual = 0;
-        $precioOriginalTotal = 0;
-        $cantCarrito = 0;
-
-        if (!empty($_SESSION['arrCarrito'])) {
-            foreach ($_SESSION['arrCarrito'] as $key => $pro) {
-                $precioVenta = $pro['precio']; 
-                $subtotalGeneral += ($precioVenta * $pro['cantidad']);
-                $cantCarrito += $pro['cantidad'];
-                
-                if($key == $idKey){
-                    $totalProductoActual = $precioVenta * $pro['cantidad'];
-                    $precioOriginal = (isset($pro['precio_original']) && $pro['precio_original'] > 0) ? $pro['precio_original'] : $precioVenta;
-                    $precioOriginalTotal = $precioOriginal * $pro['cantidad'];
+            // Calculamos la nueva cantidad total
+            $cantCarrito = 0;
+            if (!empty($_SESSION['arrCarrito'])) {
+                foreach ($_SESSION['arrCarrito'] as $pro) {
+                    $cantCarrito += $pro['cantidad'];
                 }
             }
+
+            // Generamos el nuevo HTML del modal
+            ob_start();
+            $data = $_SESSION['arrCarrito'] ?? [];
+            getModal('modalCarrito', $data);
+            $htmlCarrito = ob_get_clean();
+
+            echo json_encode([
+                "status" => true,
+                "cantCarrito" => $cantCarrito,
+                "htmlCarrito" => $htmlCarrito
+            ], JSON_UNESCAPED_UNICODE);
+            die();
         }
-
-        $montoDescuento = !empty($_SESSION['descuento_detalle']) ? $_SESSION['descuento_detalle']['monto'] : 0;
-        $totalFinal = $subtotalGeneral - $montoDescuento;
-
-        // 3. GENERAR HTML PARA EL MODAL
-        ob_start();
-        $data = $_SESSION['arrCarrito'] ?? [];
-        getModal('modalCarrito', $data);
-        $htmlCarrito = ob_get_clean();
-
-        // 4. RESPUESTA JSON COMPLETA
-        echo json_encode([
-            "status" => true,
-            "deleted" => $eliminado, // Avisamos al JS si debe borrar la fila
-            "cantCarrito" => $cantCarrito,
-            "htmlCarrito" => $htmlCarrito, 
-            "precioTachado" => "$".formatMoneda($precioOriginalTotal),
-            "subtotalProducto" => "$".formatMoneda($totalProductoActual),
-            "subtotalGeneral" => "$".formatMoneda($subtotalGeneral),
-            "totalFinalNum" => $totalFinal
-        ], JSON_UNESCAPED_UNICODE);
-        die();
     }
-}
+
+    public function updateCarrito()
+    {
+        if ($_POST) {
+            if (ob_get_length()) ob_clean();
+
+            $idKey = strClean($_POST['id']);
+            $action = strClean($_POST['action']);
+            $eliminado = false; // Variable de control
+
+            if (!isset($_SESSION['arrCarrito'][$idKey])) {
+                echo json_encode(["status" => false, "msg" => "Producto no encontrado."]);
+                die();
+            }
+
+            // 1. Lógica de actualización de cantidad
+            if ($action == "add") {
+                $_SESSION['arrCarrito'][$idKey]['cantidad']++;
+            } else if ($action == "sub") {
+                if ($_SESSION['arrCarrito'][$idKey]['cantidad'] > 1) {
+                    $_SESSION['arrCarrito'][$idKey]['cantidad']--;
+                } else {
+                    unset($_SESSION['arrCarrito'][$idKey]);
+                    $eliminado = true; // Marcamos que el producto ya no existe
+                }
+            }
+
+            // 2. Recálculo de totales
+            $subtotalGeneral = 0;
+            $totalProductoActual = 0;
+            $precioOriginalTotal = 0;
+            $cantCarrito = 0;
+
+            if (!empty($_SESSION['arrCarrito'])) {
+                foreach ($_SESSION['arrCarrito'] as $key => $pro) {
+                    $precioVenta = $pro['precio'];
+                    $subtotalGeneral += ($precioVenta * $pro['cantidad']);
+                    $cantCarrito += $pro['cantidad'];
+
+                    if ($key == $idKey) {
+                        $totalProductoActual = $precioVenta * $pro['cantidad'];
+                        $precioOriginal = (isset($pro['precio_original']) && $pro['precio_original'] > 0) ? $pro['precio_original'] : $precioVenta;
+                        $precioOriginalTotal = $precioOriginal * $pro['cantidad'];
+                    }
+                }
+            }
+
+            $montoDescuento = !empty($_SESSION['descuento_detalle']) ? $_SESSION['descuento_detalle']['monto'] : 0;
+            $totalFinal = $subtotalGeneral - $montoDescuento;
+
+            // 3. GENERAR HTML PARA EL MODAL
+            ob_start();
+            $data = $_SESSION['arrCarrito'] ?? [];
+            getModal('modalCarrito', $data);
+            $htmlCarrito = ob_get_clean();
+
+            // 4. RESPUESTA JSON COMPLETA
+            echo json_encode([
+                "status" => true,
+                "deleted" => $eliminado, // Avisamos al JS si debe borrar la fila
+                "cantCarrito" => $cantCarrito,
+                "htmlCarrito" => $htmlCarrito,
+                "precioTachado" => "$" . formatMoneda($precioOriginalTotal),
+                "subtotalProducto" => "$" . formatMoneda($totalProductoActual),
+                "subtotalGeneral" => "$" . formatMoneda($subtotalGeneral),
+                "totalFinalNum" => $totalFinal
+            ], JSON_UNESCAPED_UNICODE);
+            die();
+        }
+    }
 
     public function clearCarrito()
     {
@@ -278,127 +287,173 @@ public function updateCarrito()
             die();
         }
     }
-
-public function procesarPedido()
-{
-    if ($_POST) {
-        if (empty($_SESSION['arrCarrito'])) {
-            echo json_encode(["status" => false, "msg" => "Carrito vacío."], JSON_UNESCAPED_UNICODE);
-            die();
-        }
-
-        // 1. Limpieza y recepción de datos
-        $strDireccion = strClean($_POST['txtDireccion']);
-        $strCiudad    = strClean($_POST['txtCiudad']);
-        $intIdBarrio  = intval($_POST['listBarrio']);
-        $floatEnvio   = floatval($_POST['txtCostoEnvio']);
-        if ($intIdBarrio == 0) $intIdBarrio = null;
-
-        $metodoRaw    = $_POST['intTipopago'];
-        $intTipopago  = ($metodoRaw == 'transferencia' || $metodoRaw == 1) ? 1 : 2;
-        $intIdUsuario = $_SESSION['idUser'];
-        $intStatus    = 1; // Pendiente
-
-        // 2. Cálculo del total del carrito
-        $subtotal = 0;
-        foreach ($_SESSION['arrCarrito'] as $producto) {
-            $subtotal += $producto['precio'] * $producto['cantidad'];
-        }
-
-        $montoDescuento = !empty($_SESSION['descuento_detalle']) ? $_SESSION['descuento_detalle']['monto'] : 0;
-        $montoFinal = ($subtotal - $montoDescuento) + $floatEnvio;
-
-        // 3. Insertar Pedido
-        $request_pedido = $this->insertPedido(
-            $intIdUsuario, $strDireccion, $strCiudad, $intIdBarrio, $floatEnvio, $montoFinal, $intTipopago, $intStatus
-        );
-
-        if ($request_pedido > 0) {
-            // 4. Procesar productos
-            foreach ($_SESSION['arrCarrito'] as $pro) {
-                $idProducto = $pro['idproducto'];
-                $cantComprada = $pro['cantidad'];
-                $colorDetalle = !empty($pro['color']) ? $pro['color'] : "";
-
-                // A. Insertar detalle
-                $this->insertDetallePedido($request_pedido, $idProducto, $pro['precio'], $cantComprada, $colorDetalle);
-
-                // B. Actualizar STOCK (Tu función actual)
-                $this->updateStockProducto($idProducto, $cantComprada);
-
-                // C. NUEVO: Registrar en historial de inventario
-                $observacion = "Venta Online - Pedido #".$request_pedido;
-                $this->registrarSalidaInventario($idProducto, $intIdUsuario, $cantComprada, $colorDetalle, $observacion);
-
-                $productosEmail[] = array(
-                    'nombre'   => $pro['producto'],
-                    'precio'   => $pro['precio'],
-                    'cantidad' => $cantComprada,
-                    'portada'  => $pro['imagen'],
-                    'color'    => $colorDetalle
-                );
+    public function registrarCuponRuleta()
+    {
+        if ($_POST) {
+            // 1. Validamos que el usuario esté verdaderamente logueado
+            if (empty($_SESSION['login'])) {
+                $arrResponse = array('status' => false, 'msg' => 'Usuario no autenticado.');
+                echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+                die();
             }
 
-            // 5. Obtener contador de orden
-            $con = new Mysql();
-            $sqlCount = "SELECT COUNT(*) as total FROM pedido WHERE personaid = $intIdUsuario";
-            $resCount = $con->select($sqlCount);
-            $nroOrdenUsuario = $resCount['total'];
+            $strCodigo = strClean($_POST['codigo']);
+            $intDescuento = intval($_POST['descuento']);
 
-            // ... (Resto de tu código de Email y Notificaciones se mantiene igual) ...
-            
-            $nombreCliente = "Cliente";
-            $emailCliente = "";
-            if (!empty($_SESSION['userData']['nombre'])) {
-                $nombreCliente = $_SESSION['userData']['nombre'] . ' ' . ($_SESSION['userData']['apellido'] ?? '');
-                $emailCliente = $_SESSION['userData']['email_user'];
+            // Determinamos el ID del usuario de forma segura
+            if (!empty($_POST['idUsuario'])) {
+                $idUsuario = intval($_POST['idUsuario']);
             } else {
-                $sqlUser = "SELECT nombre, apellido, email_user FROM persona WHERE idpersona = $intIdUsuario";
-                $userData = $con->select($sqlUser);
-                if ($userData) {
-                    $nombreCliente = $userData['nombre'] . ' ' . $userData['apellido'];
-                    $emailCliente = $userData['email_user'];
-                }
+                $idUsuario = !empty($_SESSION['idUser']) ? $_SESSION['idUser'] : $_SESSION['userData']['idpersona'];
             }
 
-            if (!empty($emailCliente)) {
-                $dataEmail = array(
-                    'email'         => $emailCliente,
-                    'nombreUsuario' => $nombreCliente,
-                    'asunto'        => 'Confirmación de Orden #' . $nroOrdenUsuario . ' - ' . NOMBRE_EMPRESA,
-                    'pedido'        => array(
-                        'numpedido'  => $nroOrdenUsuario,
-                        'referencia' => 'REF-' . strtoupper(bin2hex(random_bytes(3))),
-                        'fecha'      => date("d/m/Y"),
-                        'monto'      => $montoFinal,
-                        'productos'  => $productosEmail
-                    )
-                );
-                sendEmail($dataEmail, 'email_notificacion_orden');
+            $fechaVencimiento = date('Y-m-d', strtotime('+30 days'));
+
+            // 2. SOLUCCIÓN DE INVOCACIÓN: Importamos el archivo e instanciamos tu CuponModel
+            require_once("Models/CuponModel.php");
+            $modelCupon = new CuponModel();
+
+            // 3. Ejecutamos tu método que crea el cupón e inserta la relación en 'cupon_usuario' con fecha_uso = null
+            $request = $modelCupon->insertarCuponGarantizado($strCodigo, $intDescuento, $fechaVencimiento, $idUsuario);
+
+            if ($request > 0) {
+                $arrResponse = array('status' => true, 'msg' => '¡Cupón de ruleta creado y asignado al usuario con éxito!');
+            } else {
+                $arrResponse = array('status' => false, 'msg' => 'No se pudo registrar el cupón en la base de datos.');
             }
 
-            $tituloNotif = "Pedido #$nroOrdenUsuario Recibido";
-            $mensajeNotif = "Hola $nombreCliente, hemos recibido tu pedido con éxito.";
-            $queryNotif = "INSERT INTO notificacion(usuarioid, titulo, mensaje, leido, pedido_id) VALUES(?,?,?,?,?)";
-            $con->insert($queryNotif, [$intIdUsuario, $tituloNotif, $mensajeNotif, 0, $request_pedido]);
-
-            if (!empty($_SESSION['descuento_detalle'])) {
-                $idCupon = $_SESSION['descuento_detalle']['id'];
-                require_once("Models/CuponModel.php");
-                $objCupon = new CuponModel();
-                $objCupon->registrarUsoCupon($intIdUsuario, $idCupon);
-            }
-
-            unset($_SESSION['arrCarrito']);
-            unset($_SESSION['descuento_detalle']);
-
-            echo json_encode(["status" => true, "orden" => $nroOrdenUsuario, "msg" => "¡Pedido realizado con éxito!"], JSON_UNESCAPED_UNICODE);
-        } else {
-            echo json_encode(["status" => false, "msg" => "Error al procesar la orden."], JSON_UNESCAPED_UNICODE);
+            echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+            die();
         }
         die();
     }
-}
+    public function procesarPedido()
+    {
+        if ($_POST) {
+            if (empty($_SESSION['arrCarrito'])) {
+                echo json_encode(["status" => false, "msg" => "Carrito vacío."], JSON_UNESCAPED_UNICODE);
+                die();
+            }
+
+            // 1. Limpieza y recepción de datos
+            $strDireccion = strClean($_POST['txtDireccion']);
+            $strCiudad    = strClean($_POST['txtCiudad']);
+            $intIdBarrio  = intval($_POST['listBarrio']);
+            $floatEnvio   = floatval($_POST['txtCostoEnvio']);
+            if ($intIdBarrio == 0) $intIdBarrio = null;
+
+            $metodoRaw    = $_POST['intTipopago'];
+            $intTipopago  = ($metodoRaw == 'transferencia' || $metodoRaw == 1) ? 1 : 2;
+            $intIdUsuario = $_SESSION['idUser'];
+            $intStatus    = 1; // Pendiente
+
+            // 2. Cálculo del total del carrito
+            $subtotal = 0;
+            foreach ($_SESSION['arrCarrito'] as $producto) {
+                $subtotal += $producto['precio'] * $producto['cantidad'];
+            }
+
+            $montoDescuento = !empty($_SESSION['descuento_detalle']) ? $_SESSION['descuento_detalle']['monto'] : 0;
+            $montoFinal = ($subtotal - $montoDescuento) + $floatEnvio;
+
+            // 3. Insertar Pedido
+            $request_pedido = $this->insertPedido(
+                $intIdUsuario,
+                $strDireccion,
+                $strCiudad,
+                $intIdBarrio,
+                $floatEnvio,
+                $montoFinal,
+                $intTipopago,
+                $intStatus
+            );
+
+            if ($request_pedido > 0) {
+                // 4. Procesar productos
+                foreach ($_SESSION['arrCarrito'] as $pro) {
+                    $idProducto = $pro['idproducto'];
+                    $cantComprada = $pro['cantidad'];
+                    $colorDetalle = !empty($pro['color']) ? $pro['color'] : "";
+
+                    // A. Insertar detalle
+                    $this->insertDetallePedido($request_pedido, $idProducto, $pro['precio'], $cantComprada, $colorDetalle);
+
+                    // B. Actualizar STOCK (Tu función actual)
+                    $this->updateStockProducto($idProducto, $cantComprada);
+
+                    // C. NUEVO: Registrar en historial de inventario
+                    $observacion = "Venta Online - Pedido #" . $request_pedido;
+                    $this->registrarSalidaInventario($idProducto, $intIdUsuario, $cantComprada, $colorDetalle, $observacion);
+
+                    $productosEmail[] = array(
+                        'nombre'   => $pro['producto'],
+                        'precio'   => $pro['precio'],
+                        'cantidad' => $cantComprada,
+                        'portada'  => $pro['imagen'],
+                        'color'    => $colorDetalle
+                    );
+                }
+
+                // 5. Obtener contador de orden
+                $con = new Mysql();
+                $sqlCount = "SELECT COUNT(*) as total FROM pedido WHERE personaid = $intIdUsuario";
+                $resCount = $con->select($sqlCount);
+                $nroOrdenUsuario = $resCount['total'];
+
+                // ... (Resto de tu código de Email y Notificaciones se mantiene igual) ...
+
+                $nombreCliente = "Cliente";
+                $emailCliente = "";
+                if (!empty($_SESSION['userData']['nombre'])) {
+                    $nombreCliente = $_SESSION['userData']['nombre'] . ' ' . ($_SESSION['userData']['apellido'] ?? '');
+                    $emailCliente = $_SESSION['userData']['email_user'];
+                } else {
+                    $sqlUser = "SELECT nombre, apellido, email_user FROM persona WHERE idpersona = $intIdUsuario";
+                    $userData = $con->select($sqlUser);
+                    if ($userData) {
+                        $nombreCliente = $userData['nombre'] . ' ' . $userData['apellido'];
+                        $emailCliente = $userData['email_user'];
+                    }
+                }
+
+                if (!empty($emailCliente)) {
+                    $dataEmail = array(
+                        'email'         => $emailCliente,
+                        'nombreUsuario' => $nombreCliente,
+                        'asunto'        => 'Confirmación de Orden #' . $nroOrdenUsuario . ' - ' . NOMBRE_EMPRESA,
+                        'pedido'        => array(
+                            'numpedido'  => $nroOrdenUsuario,
+                            'referencia' => 'REF-' . strtoupper(bin2hex(random_bytes(3))),
+                            'fecha'      => date("d/m/Y"),
+                            'monto'      => $montoFinal,
+                            'productos'  => $productosEmail
+                        )
+                    );
+                    sendEmail($dataEmail, 'email_notificacion_orden');
+                }
+
+                $tituloNotif = "Pedido #$nroOrdenUsuario Recibido";
+                $mensajeNotif = "Hola $nombreCliente, hemos recibido tu pedido con éxito.";
+                $queryNotif = "INSERT INTO notificacion(usuarioid, titulo, mensaje, leido, pedido_id) VALUES(?,?,?,?,?)";
+                $con->insert($queryNotif, [$intIdUsuario, $tituloNotif, $mensajeNotif, 0, $request_pedido]);
+
+                if (!empty($_SESSION['descuento_detalle'])) {
+                    $idCupon = $_SESSION['descuento_detalle']['id'];
+                    require_once("Models/CuponModel.php");
+                    $objCupon = new CuponModel();
+                    $objCupon->registrarUsoCupon($intIdUsuario, $idCupon);
+                }
+
+                unset($_SESSION['arrCarrito']);
+                unset($_SESSION['descuento_detalle']);
+
+                echo json_encode(["status" => true, "orden" => $nroOrdenUsuario, "msg" => "¡Pedido realizado con éxito!"], JSON_UNESCAPED_UNICODE);
+            } else {
+                echo json_encode(["status" => false, "msg" => "Error al procesar la orden."], JSON_UNESCAPED_UNICODE);
+            }
+            die();
+        }
+    }
 
     public function confirmacion()
     {

@@ -122,6 +122,8 @@
 	<script src="<?= media(); ?>/tienda/js/functions.js"></script>
 	<script src="<?= media(); ?>/tienda/js/functions_tienda.js"></script>
 	<script src="<?= media(); ?>/tienda/js/functions_carrito.js"></script>
+	<script src="<?= media(); ?>/tienda/js/functions_campana.js"></script>
+	<script src="<?= media(); ?>/tienda/js/functions_ruleta.js"></script>
 
 	<?php if (!empty($data['page_functions_js'])) { ?>
 		<script src="<?= media(); ?>/tienda/js/<?= $data['page_functions_js']; ?>"></script>

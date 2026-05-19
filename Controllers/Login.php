@@ -13,7 +13,7 @@ class Login extends Controllers
             $origen = $_SESSION['login_origen'] ?? 'admin';
 
             if ($origen == 'tienda') {
-                header('Location: ' . base_url() . '/tienda');
+                header('Location: ' . base_url());
             } else {
                 header('Location: ' . base_url() . '/dashboard');
             }
@@ -161,7 +161,7 @@ class Login extends Controllers
                     if ($origen === 'admin') {
                         $urlRedirect = base_url() . '/dashboard';
                     } else {
-                        $urlRedirect = base_url() . '/tienda';
+                        $urlRedirect = base_url();
                     }
 
                     $arrResponse = array(

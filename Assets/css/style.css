@@ -135,7 +135,303 @@
     /* Ajuste de totales en móvil */
     .invoice-totals { width: 100%; margin-top: 10px; }
 }
+/**MODAL CAMPAÑA**/
+/* --- CONTENEDOR PRINCIPAL Y BORDES PRO --- */
+.modal-campana-content {
+    border-radius: 25px !important;
+    overflow: hidden;
+    border: none;
+}
 
+.modal-campana-header {
+    background: #274e66;
+    color: white;
+    padding: 1.5rem;
+    border-bottom: none;
+}
+
+.modal-campana-header .modal-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+}
+
+/* --- CARDS INTERNAS --- */
+.card-campana {
+    border-radius: 20px !important;
+    border: 1px solid #eef2f7 !important;
+    background: #ffffff;
+}
+
+/* --- TÍTULOS DE SECCIÓN E ICONOS --- */
+.campana-section-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.campana-icon-box {
+    width: 45px;
+    height: 45px;
+    background: #f0f7ff;
+    color: #274e66;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+/* --- INPUTS Y FORMULARIOS --- */
+.input-campana, 
+.textarea-campana,
+.textarea-editor {
+    border-radius: 12px !important;
+    border: 1.5px solid #dce3eb !important;
+    padding: 10px 15px !important;
+    transition: all 0.3s ease;
+}
+
+.input-campana:focus, 
+.textarea-campana:focus {
+    border-color: #274e66 !important;
+    box-shadow: 0 0 0 0.2rem rgba(39, 78, 102, 0.1) !important;
+}
+
+/* --- BUILDER DE LANDING (BOTONES) --- */
+.landing-builder-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.landing-block-btn {
+    background: #fff;
+    border: 2px dashed #cbd5e0;
+    border-radius: 15px;
+    padding: 12px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #4a5568;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.landing-block-btn i {
+    font-size: 1.4rem;
+    color: #274e66;
+}
+
+.landing-block-btn:hover {
+    background: #f8fafc;
+    border-color: #274e66;
+    transform: translateY(-2px);
+}
+
+/* --- EDITOR DE CÓDIGO (ESTILO TERMINAL) --- */
+.landing-editor-box {
+    border-radius: 15px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+
+.landing-editor-topbar {
+    background: #2d3748;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    font-size: 0.8rem;
+}
+
+.editor-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+.editor-dot:nth-child(1) { background: #ff5f56; }
+.editor-dot:nth-child(2) { background: #ffbd2e; }
+.editor-dot:nth-child(3) { background: #27c93f; }
+
+.textarea-editor {
+    border: none !important;
+    border-radius: 0 !important;
+    background: #fafafa !important;
+    font-family: 'Fira Code', 'Courier New', monospace;
+    font-size: 13px;
+    resize: vertical;
+}
+
+/* --- UPLOAD DE IMAGEN --- */
+.modern-upload-box {
+    width: 100%;
+    min-height: 200px;
+    background: #f1f5f9;
+    border: 2px dashed #cbd5e0;
+    border-radius: 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+    overflow: hidden; /* Evita que la imagen se salga de los bordes redondeados */
+}
+
+.modern-upload-box:hover {
+    background: #e2e8f0;
+    border-color: #274e66;
+}
+
+.modern-upload-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain !important; /* Muestra la imagen completa */
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 5;
+}
+
+/* Asegurar que el icono de carga esté detrás de la imagen si esta existe */
+#iconUpload {
+    position: relative;
+    z-index: 1;
+}
+
+.delPhoto {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ef4444;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20; /* Siempre por encima de la imagen */
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.upload-icon {
+    font-size: 2.5rem;
+    color: #94a3b8;
+}
+
+/* --- BOTÓN GUARDAR --- */
+.btn-save-campana {
+    background: #274e66 !important;
+    border: none !important;
+    border-radius: 30px !important;
+    padding: 15px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 10px 20px rgba(39, 78, 102, 0.2) !important;
+    transition: all 0.3s ease;
+}
+
+.btn-save-campana:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 25px rgba(39, 78, 102, 0.3) !important;
+}
+/* Contenedor principal de los bloques de edición */
+#blocksEditorList .card {
+    border-radius: 12px;
+    border: 1px solid #e3e6f0;
+    overflow: hidden;
+    margin-bottom: 1.5rem !important;
+}
+
+/* Títulos y Badges */
+#blocksEditorList .badge-primary {
+    background-color: #4e73df;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+/* Selectores más suaves */
+#blocksEditorList .form-control-sm, 
+#blocksEditorList select {
+    border-radius: 8px;
+    border: 1px solid #d1d3e2;
+    padding: 0.5rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#blocksEditorList .form-control-sm:focus {
+    border-color: #bac8f3;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.1);
+}
+
+/* --- ESTILO PARA EL BOTÓN DE SUBIDA (Custom Input File) --- */
+.custom-file-upload {
+    position: relative;
+    display: block;
+    width: 100%;
+    margin-top: 5px;
+}
+
+/* Ocultamos el input real */
+.custom-file-upload input[type="file"] {
+    display: none;
+}
+
+/* Creamos el botón falso */
+.custom-file-label-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fc;
+    border: 2px dashed #d1d3e2;
+    color: #4e73df;
+    padding: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+.custom-file-label-btn:hover {
+    background-color: #eaecf4;
+    border-color: #4e73df;
+}
+
+.custom-file-label-btn i {
+    margin-right: 8px;
+    font-size: 1.1rem;
+}
+
+/* Estilo para los selectores de color */
+#blocksEditorList input[type="color"] {
+    padding: 2px;
+    height: 38px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+#blocksEditorList .card-header {
+    cursor: grab;
+}
+#blocksEditorList .card-header:active {
+    cursor: grabbing;
+}
+
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+    .landing-builder-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
 /**TABS**/
 
 #clienteTab .nav-link {

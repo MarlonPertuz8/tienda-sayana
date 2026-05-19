@@ -118,7 +118,7 @@
             </p>
 
             <?php 
-                $telefonoTienda = "573000000000"; 
+                $telefonoTienda = "573023075957"; 
                 $nombre = !empty($_SESSION['userData']['nombre']) ? $_SESSION['userData']['nombre'] : "Cliente";
                 $apellido = !empty($_SESSION['userData']['apellido']) ? $_SESSION['userData']['apellido'] : "";
                 $cliente = trim($nombre . " " . $apellido);

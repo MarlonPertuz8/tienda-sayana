@@ -200,7 +200,7 @@ public function setUsuario() {
                             'email'         => $strEmail,
                             'asunto'        => 'Seguridad: Tu contraseña ha sido cambiada - '.NOMBRE_EMPRESA
                         );
-                        sendEmail($dataUsuario, 'email_cambioclave');
+                        sendEmail($dataUsuario, 'email_cambioPassword');
                     }
                 }
                 $arrResponse = array("status" => true, "msg" => $msg);
