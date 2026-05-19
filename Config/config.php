@@ -1,16 +1,16 @@
 <?php
 
 // define("BASE_URL", "http://localhost/sayana_tienda_virtual/");
-const BASE_URL = "http://localhost/sayana_tienda_virtual";
+const BASE_URL = "http://sayana.neobellsalon.com";
 
 //Zona horaria
 date_default_timezone_set("America/Bogota");
 
 // Database configuration
-const DB_HOST = "localhost";
-const DB_NAME = "db_sayana_tiendavirtual";
-const DB_USER = "root";
-const DB_PASSWORD = "";
+const DB_HOST = "mysql5048.site4now.net";
+const DB_NAME = "db_a86d42_sayana";
+const DB_USER = "a86d42_sayana";
+const DB_PASSWORD = "18540915Bibi";
 const DB_CHARSET = "utf8";
 
 // delimitadores decimal y millar Ej. 24,1989.00
@@ -25,7 +25,7 @@ const NOMBRE_REMITENTE = "Sayana.col";
 const EMAIL_REMITENTE = "no-replay@sayanacol.com";
 
 const NOMBRE_EMPRESA = "Sayana.col";
-const WEB_EMPRESA = "http://localhost/sayana_tienda_virtual";
+const WEB_EMPRESA = "http://sayana.neobellsalon.com";
 
 // const CAT_SLIDER = "1,2,3";
 const CAT_BANNER = "1,2,3,4,5,6,7,8,9,10,11";
